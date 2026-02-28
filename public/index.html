@@ -39,84 +39,272 @@
             font-family: 'Inter', sans-serif;
             background-color: #000000;
             color: #ffffff;
+            overflow-x: hidden;
         }
         
         .font-archivo {
             font-family: 'Archivo Black', sans-serif;
         }
         
-        /* Animations */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* =====================
+           CINEMATIC ANIMATIONS
+           ===================== */
         
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        .animate-fade-up {
-            animation: fadeUp 0.6s ease-out forwards;
-        }
-        
-        .animate-scale-in {
-            animation: scaleIn 0.4s ease-out forwards;
+        /* Page transitions */
+        .step {
+            position: relative;
         }
         
         .step-hidden {
             display: none;
         }
         
-        /* Category cards hover */
+        /* Cinematic entrance - main content */
+        @keyframes cinematicReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(60px) scale(0.98);
+                filter: blur(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
+        
+        /* Staggered fade up for elements */
+        @keyframes staggerUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Slide in from sides */
+        @keyframes slideInLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            0% {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Scale pop */
+        @keyframes scalePop {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Glitch effect for titles */
+        @keyframes glitchReveal {
+            0% {
+                opacity: 0;
+                transform: translateX(-20px);
+                clip-path: inset(0 100% 0 0);
+            }
+            50% {
+                clip-path: inset(0 0 0 0);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+                clip-path: inset(0 0 0 0);
+            }
+        }
+        
+        /* Pulse glow */
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(244, 83, 37, 0);
+            }
+            50% {
+                box-shadow: 0 0 30px 5px rgba(244, 83, 37, 0.3);
+            }
+        }
+        
+        /* Number counter spin */
+        @keyframes counterSpin {
+            0% {
+                opacity: 0;
+                transform: rotateX(90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: rotateX(0);
+            }
+        }
+        
+        /* Line draw */
+        @keyframes lineDraw {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+        
+        /* Apply animations */
+        .animate-cinematic {
+            animation: cinematicReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-stagger {
+            opacity: 0;
+            animation: staggerUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-slide-left {
+            animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-slide-right {
+            animation: slideInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-scale-pop {
+            animation: scalePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        .animate-glitch {
+            animation: glitchReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-counter {
+            animation: counterSpin 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transform-origin: center bottom;
+        }
+        
+        /* Hover effects with spring physics */
         .category-card {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
+            transform-origin: center;
         }
         
         .category-card:hover {
             border-color: #F45325;
             background-color: rgba(244, 83, 37, 0.1);
+            transform: translateY(-8px) scale(1.02);
+        }
+        
+        .category-card:hover .card-number {
+            transform: scale(1.1);
+            color: #F45325;
         }
         
         .category-card.selected {
             border-color: #F45325;
             background-color: rgba(244, 83, 37, 0.15);
+            animation: pulseGlow 2s ease-in-out infinite;
         }
         
-        /* Option buttons */
+        .card-number {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        /* Option buttons with micro-interactions */
         .option-btn {
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(244, 83, 37, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .option-btn:hover::before {
+            left: 100%;
         }
         
         .option-btn:hover {
             border-color: #F45325;
+            transform: translateX(8px);
         }
         
         .option-btn.selected {
             border-color: #F45325;
             background-color: rgba(244, 83, 37, 0.2);
+            transform: translateX(8px);
         }
         
-        /* Multi-select */
+        .option-btn.selected::after {
+            content: '+';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #F45325;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        /* Multi-select with check animation */
+        .multi-option {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        
+        .multi-option:hover {
+            border-color: rgba(244, 83, 37, 0.5);
+            transform: scale(1.02);
+        }
+        
         .multi-option.selected {
             border-color: #F45325;
             background-color: rgba(244, 83, 37, 0.2);
+            transform: scale(1.02);
         }
         
-        /* Input styling */
+        .multi-option.selected::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: #F45325;
+            clip-path: polygon(20% 40%, 40% 60%, 80% 20%, 90% 30%, 40% 80%, 10% 50%);
+            animation: scalePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        /* Input styling with focus glow */
         input[type="number"],
         input[type="text"],
         textarea {
@@ -126,20 +314,44 @@
             padding: 12px 16px;
             width: 100%;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
         input:focus,
         textarea:focus {
             border-color: #F45325;
+            box-shadow: 0 0 20px rgba(244, 83, 37, 0.2);
+            transform: scale(1.01);
         }
         
-        /* Progress bar */
+        /* Progress bar with smooth fill */
+        .progress-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
         .progress-fill {
-            transition: width 0.4s ease;
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
         }
         
-        /* CTA Button */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        /* CTA Button with liquid effect */
         .btn-cta {
             background-color: #F45325;
             color: #ffffff;
@@ -148,18 +360,54 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             border: 1px solid #F45325;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-cta::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .btn-cta:hover::before {
+            width: 300px;
+            height: 300px;
         }
         
         .btn-cta:hover {
-            background-color: transparent;
-            color: #F45325;
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(244, 83, 37, 0.4);
+        }
+        
+        .btn-cta:active {
+            transform: translateY(-2px) scale(1.02);
         }
         
         .btn-cta:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-cta:disabled:hover::before {
+            width: 0;
+            height: 0;
+        }
+        
+        .btn-cta span {
+            position: relative;
+            z-index: 1;
         }
         
         .btn-secondary {
@@ -168,22 +416,139 @@
             padding: 16px 32px;
             font-weight: 500;
             border: 1px solid rgba(255,255,255,0.125);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: pointer;
         }
         
         .btn-secondary:hover {
             border-color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Decorative lines */
+        .line-reveal {
+            height: 1px;
+            background: linear-gradient(90deg, #F45325, transparent);
+            animation: lineDraw 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Background parallax */
+        .bg-parallax {
+            transition: transform 0.1s ease-out;
+        }
+        
+        /* Result cards entrance */
+        .result-card {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .result-card.visible {
+            animation: staggerUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Table row animations */
+        .table-row {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .table-row.visible {
+            animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Floating particles (subtle) */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #F45325;
+            opacity: 0.3;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        /* Cursor follower glow */
+        .cursor-glow {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(244, 83, 37, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Step transition overlay */
+        .transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .transition-overlay.active {
+            opacity: 1;
+        }
+        
+        /* Title split animation */
+        .split-text span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%);
+            animation: splitReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        @keyframes splitReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Question card entrance */
+        .question-card {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+        }
+        
+        .question-card.visible {
+            animation: cinematicReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- Cursor glow effect -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+    
+    <!-- Transition overlay -->
+    <div class="transition-overlay" id="transitionOverlay"></div>
+    
     <!-- Background -->
-    <div class="fixed inset-0 z-0">
+    <div class="fixed inset-0 z-0 bg-parallax" id="bgParallax">
         <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" 
              alt="Background" 
              class="w-full h-full object-cover opacity-20">
         <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+        
+        <!-- Floating particles -->
+        <div class="particle" style="top: 20%; left: 10%;"></div>
+        <div class="particle" style="top: 60%; left: 80%; animation-delay: 1s;"></div>
+        <div class="particle" style="top: 40%; left: 50%; animation-delay: 2s;"></div>
+        <div class="particle" style="top: 80%; left: 30%; animation-delay: 3s;"></div>
+        <div class="particle" style="top: 10%; left: 70%; animation-delay: 4s;"></div>
     </div>
     
     <!-- Content -->
@@ -193,8 +558,8 @@
             <div class="max-w-6xl mx-auto flex items-center justify-between">
                 <img src="https://calltoactionplus.com/wp-content/uploads/2024/01/logo-cta-plus-white.png" 
                      alt="CTA+" 
-                     class="h-8">
-                <div class="text-sm text-gray-400">
+                     class="h-8 animate-slide-left">
+                <div class="text-sm text-gray-400 animate-slide-right">
                     GAMIFICATION WIZARD
                 </div>
             </div>
@@ -207,7 +572,7 @@
                     <span class="text-sm text-gray-400">Progreso</span>
                     <span class="text-sm text-gray-400" id="stepIndicator">Paso 1 de 3</span>
                 </div>
-                <div class="h-1 bg-cta-dark w-full">
+                <div class="h-1 bg-cta-dark w-full progress-container">
                     <div class="h-full bg-cta-orange progress-fill" id="progressBar" style="width: 33%"></div>
                 </div>
             </div>
@@ -218,21 +583,29 @@
             <div class="max-w-4xl mx-auto">
                 
                 <!-- STEP 1: Category Selection -->
-                <div id="step1" class="step animate-fade-up">
-                    <h1 class="font-archivo text-4xl md:text-6xl mb-4">
-                        SELECCIONA TU<br>
-                        <span class="text-cta-orange">CATEGORIA</span>
-                    </h1>
-                    <p class="text-gray-400 text-lg mb-12 max-w-xl">
+                <div id="step1" class="step">
+                    <div class="overflow-hidden mb-4">
+                        <h1 class="font-archivo text-4xl md:text-6xl animate-glitch">
+                            SELECCIONA TU
+                        </h1>
+                    </div>
+                    <div class="overflow-hidden mb-4">
+                        <h1 class="font-archivo text-4xl md:text-6xl text-cta-orange animate-glitch" style="animation-delay: 0.1s">
+                            CATEGORIA
+                        </h1>
+                    </div>
+                    <div class="line-reveal mb-8" style="animation-delay: 0.3s"></div>
+                    <p class="text-gray-400 text-lg mb-12 max-w-xl animate-stagger" style="animation-delay: 0.4s">
                         Elige el tipo de gamificacion que mejor se adapta a las necesidades de tu empresa.
                     </p>
                     
                     <div class="grid md:grid-cols-3 gap-6">
                         <!-- Empresarial -->
-                        <div class="category-card border border-cta-border p-8 animate-scale-in" 
+                        <div class="category-card border border-cta-border p-8 animate-stagger" 
+                             style="animation-delay: 0.5s"
                              data-category="empresarial"
                              onclick="selectCategory('empresarial')">
-                            <div class="text-5xl mb-6">01</div>
+                            <div class="card-number text-5xl mb-6 font-archivo">01</div>
                             <h3 class="font-archivo text-xl mb-3">EMPRESARIAL</h3>
                             <p class="text-gray-400 text-sm">
                                 Cultura organizacional, clima laboral, productividad y engagement de empleados.
@@ -240,11 +613,11 @@
                         </div>
                         
                         <!-- Ventas -->
-                        <div class="category-card border border-cta-border p-8 animate-scale-in" 
-                             style="animation-delay: 0.1s"
+                        <div class="category-card border border-cta-border p-8 animate-stagger" 
+                             style="animation-delay: 0.6s"
                              data-category="ventas"
                              onclick="selectCategory('ventas')">
-                            <div class="text-5xl mb-6">02</div>
+                            <div class="card-number text-5xl mb-6 font-archivo">02</div>
                             <h3 class="font-archivo text-xl mb-3">VENTAS</h3>
                             <p class="text-gray-400 text-sm">
                                 Conversion, metas comerciales, incentivos y competencia entre vendedores.
@@ -252,11 +625,11 @@
                         </div>
                         
                         <!-- Equipos -->
-                        <div class="category-card border border-cta-border p-8 animate-scale-in" 
-                             style="animation-delay: 0.2s"
+                        <div class="category-card border border-cta-border p-8 animate-stagger" 
+                             style="animation-delay: 0.7s"
                              data-category="equipos"
                              onclick="selectCategory('equipos')">
-                            <div class="text-5xl mb-6">03</div>
+                            <div class="card-number text-5xl mb-6 font-archivo">03</div>
                             <h3 class="font-archivo text-xl mb-3">EQUIPOS</h3>
                             <p class="text-gray-400 text-sm">
                                 Team building, actividades de integracion, cohesion y dinamicas grupales.
@@ -264,19 +637,26 @@
                         </div>
                     </div>
                     
-                    <div class="mt-12 flex justify-end">
+                    <div class="mt-12 flex justify-end animate-stagger" style="animation-delay: 0.8s">
                         <button class="btn-cta" id="btnStep1" onclick="goToStep(2)" disabled>
-                            CONTINUAR
+                            <span>CONTINUAR</span>
                         </button>
                     </div>
                 </div>
                 
                 <!-- STEP 2: Questions -->
                 <div id="step2" class="step step-hidden">
-                    <h1 class="font-archivo text-4xl md:text-5xl mb-4">
-                        DIAGNOSTICO<br>
-                        <span class="text-cta-orange" id="categoryTitle">EMPRESARIAL</span>
-                    </h1>
+                    <div class="overflow-hidden mb-4">
+                        <h1 class="font-archivo text-4xl md:text-5xl" id="step2Title1">
+                            DIAGNOSTICO
+                        </h1>
+                    </div>
+                    <div class="overflow-hidden mb-4">
+                        <h1 class="font-archivo text-4xl md:text-5xl text-cta-orange" id="categoryTitle">
+                            EMPRESARIAL
+                        </h1>
+                    </div>
+                    <div class="line-reveal mb-8"></div>
                     <p class="text-gray-400 text-lg mb-12">
                         Responde las siguientes preguntas para personalizar tu plan de gamificacion.
                     </p>
@@ -291,17 +671,24 @@
                             ATRAS
                         </button>
                         <button class="btn-cta" id="btnStep2" onclick="goToStep(3)" disabled>
-                            GENERAR PLAN
+                            <span>GENERAR PLAN</span>
                         </button>
                     </div>
                 </div>
                 
                 <!-- STEP 3: Results -->
                 <div id="step3" class="step step-hidden">
-                    <h1 class="font-archivo text-4xl md:text-5xl mb-4">
-                        TU PLAN<br>
-                        <span class="text-cta-orange">GAMIFICADO</span>
-                    </h1>
+                    <div class="overflow-hidden mb-4">
+                        <h1 class="font-archivo text-4xl md:text-5xl" id="step3Title1">
+                            TU PLAN
+                        </h1>
+                    </div>
+                    <div class="overflow-hidden mb-4">
+                        <h1 class="font-archivo text-4xl md:text-5xl text-cta-orange" id="step3Title2">
+                            GAMIFICADO
+                        </h1>
+                    </div>
+                    <div class="line-reveal mb-8"></div>
                     
                     <div id="resultsContainer" class="space-y-8 mt-12">
                         <!-- Results will be injected here -->
@@ -312,7 +699,7 @@
                             MODIFICAR RESPUESTAS
                         </button>
                         <button class="btn-cta" onclick="downloadPlan()">
-                            DESCARGAR PDF
+                            <span>DESCARGAR PDF</span>
                         </button>
                     </div>
                 </div>
@@ -329,6 +716,38 @@
     </div>
     
     <script>
+        // =====================
+        // CURSOR GLOW EFFECT
+        // =====================
+        const cursorGlow = document.getElementById('cursorGlow');
+        let mouseX = 0, mouseY = 0;
+        let glowX = 0, glowY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        function animateCursor() {
+            glowX += (mouseX - glowX) * 0.1;
+            glowY += (mouseY - glowY) * 0.1;
+            cursorGlow.style.left = glowX + 'px';
+            cursorGlow.style.top = glowY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+        
+        // =====================
+        // PARALLAX BACKGROUND
+        // =====================
+        const bgParallax = document.getElementById('bgParallax');
+        
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 20;
+            const y = (e.clientY / window.innerHeight - 0.5) * 20;
+            bgParallax.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+        });
+        
         // =====================
         // DATA: Questions
         // =====================
@@ -517,41 +936,81 @@
         function selectCategory(category) {
             selectedCategory = category;
             
-            // Update UI
+            // Update UI with animation
             document.querySelectorAll('.category-card').forEach(card => {
                 card.classList.remove('selected');
             });
-            document.querySelector(`[data-category="${category}"]`).classList.add('selected');
             
-            // Enable continue button
-            document.getElementById('btnStep1').disabled = false;
+            const selectedCard = document.querySelector(`[data-category="${category}"]`);
+            selectedCard.classList.add('selected');
+            
+            // Enable continue button with animation
+            const btn = document.getElementById('btnStep1');
+            btn.disabled = false;
+            btn.classList.add('animate-scale-pop');
+            setTimeout(() => btn.classList.remove('animate-scale-pop'), 500);
         }
         
         function goToStep(step) {
-            // Hide all steps
-            document.querySelectorAll('.step').forEach(s => {
-                s.classList.add('step-hidden');
+            const overlay = document.getElementById('transitionOverlay');
+            
+            // Fade out
+            overlay.classList.add('active');
+            
+            setTimeout(() => {
+                // Hide all steps
+                document.querySelectorAll('.step').forEach(s => {
+                    s.classList.add('step-hidden');
+                });
+                
+                // Show target step
+                const targetStep = document.getElementById(`step${step}`);
+                targetStep.classList.remove('step-hidden');
+                
+                // Update progress
+                const progress = (step / 3) * 100;
+                document.getElementById('progressBar').style.width = `${progress}%`;
+                document.getElementById('stepIndicator').textContent = `Paso ${step} de 3`;
+                
+                // Step-specific logic
+                if (step === 2) {
+                    renderQuestions();
+                } else if (step === 3) {
+                    generateResults();
+                }
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                
+                // Trigger entrance animations
+                triggerEntranceAnimations(step);
+                
+                // Fade in
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                }, 100);
+                
+            }, 300);
+        }
+        
+        function triggerEntranceAnimations(step) {
+            const stepEl = document.getElementById(`step${step}`);
+            
+            // Reset and trigger title animations
+            const titles = stepEl.querySelectorAll('h1');
+            titles.forEach((title, i) => {
+                title.style.animation = 'none';
+                title.offsetHeight; // Trigger reflow
+                title.style.animation = `glitchReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s forwards`;
             });
             
-            // Show target step
-            const targetStep = document.getElementById(`step${step}`);
-            targetStep.classList.remove('step-hidden');
-            targetStep.classList.add('animate-fade-up');
-            
-            // Update progress
-            const progress = (step / 3) * 100;
-            document.getElementById('progressBar').style.width = `${progress}%`;
-            document.getElementById('stepIndicator').textContent = `Paso ${step} de 3`;
-            
-            // Step-specific logic
-            if (step === 2) {
-                renderQuestions();
-            } else if (step === 3) {
-                generateResults();
-            }
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Trigger line animations
+            const lines = stepEl.querySelectorAll('.line-reveal');
+            lines.forEach(line => {
+                line.style.animation = 'none';
+                line.offsetHeight;
+                line.style.animation = 'lineDraw 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards';
+            });
         }
         
         function renderQuestions() {
@@ -570,9 +1029,9 @@
             let html = '';
             categoryQuestions.forEach((q, index) => {
                 html += `
-                    <div class="border border-cta-border p-6 animate-fade-up" style="animation-delay: ${index * 0.1}s">
+                    <div class="question-card border border-cta-border p-6" data-index="${index}">
                         <div class="flex items-start gap-4 mb-4">
-                            <span class="text-cta-orange font-archivo text-2xl">${String(index + 1).padStart(2, '0')}</span>
+                            <span class="text-cta-orange font-archivo text-2xl animate-counter" style="animation-delay: ${index * 0.1 + 0.5}s">${String(index + 1).padStart(2, '0')}</span>
                             <h3 class="text-xl font-medium">${q.question}</h3>
                         </div>
                         <div class="ml-12">
@@ -583,6 +1042,15 @@
             });
             
             container.innerHTML = html;
+            
+            // Trigger staggered entrance
+            setTimeout(() => {
+                document.querySelectorAll('.question-card').forEach((card, i) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, i * 100);
+                });
+            }, 200);
             
             // Reset answers for this category
             answers = {};
@@ -663,7 +1131,15 @@
                 return val && (Array.isArray(val) ? val.length > 0 : true);
             }).length;
             
-            document.getElementById('btnStep2').disabled = answeredCount < requiredCount;
+            const btn = document.getElementById('btnStep2');
+            const wasDisabled = btn.disabled;
+            btn.disabled = answeredCount < requiredCount;
+            
+            // Animate when enabled
+            if (wasDisabled && !btn.disabled) {
+                btn.classList.add('animate-scale-pop');
+                setTimeout(() => btn.classList.remove('animate-scale-pop'), 500);
+            }
         }
         
         function generateResults() {
@@ -693,7 +1169,7 @@
             // Build results HTML
             container.innerHTML = `
                 <!-- Summary -->
-                <div class="border border-cta-border p-8 animate-fade-up">
+                <div class="result-card border border-cta-border p-8" data-index="0">
                     <div class="flex items-center gap-4 mb-6">
                         <span class="text-cta-orange font-archivo text-4xl">${data.icon}</span>
                         <h2 class="font-archivo text-2xl">${data.title.toUpperCase()}</h2>
@@ -715,7 +1191,7 @@
                 </div>
                 
                 <!-- Diagnostico -->
-                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.1s">
+                <div class="result-card border border-cta-border p-8" data-index="1">
                     <h3 class="font-archivo text-xl mb-6 text-cta-orange">DIAGNOSTICO</h3>
                     <div class="space-y-4">
                         ${getDiagnosticItems()}
@@ -723,11 +1199,11 @@
                 </div>
                 
                 <!-- Mecanicas -->
-                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.2s">
+                <div class="result-card border border-cta-border p-8" data-index="2">
                     <h3 class="font-archivo text-xl mb-6 text-cta-orange">MECANICAS RECOMENDADAS</h3>
                     <div class="grid md:grid-cols-2 gap-4">
                         ${data.mechanics.map(m => `
-                            <div class="border border-cta-border p-4">
+                            <div class="border border-cta-border p-4 transition-all duration-300 hover:border-cta-orange hover:bg-cta-orange/5">
                                 <div class="font-bold mb-2">${m.name}</div>
                                 <div class="text-gray-400 text-sm">${m.description}</div>
                             </div>
@@ -736,7 +1212,7 @@
                 </div>
                 
                 <!-- Sistema de Puntos -->
-                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.3s">
+                <div class="result-card border border-cta-border p-8" data-index="3">
                     <h3 class="font-archivo text-xl mb-6 text-cta-orange">SISTEMA DE PUNTOS SUGERIDO</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
@@ -754,7 +1230,7 @@
                 </div>
                 
                 <!-- Recompensas -->
-                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.4s">
+                <div class="result-card border border-cta-border p-8" data-index="4">
                     <h3 class="font-archivo text-xl mb-6 text-cta-orange">RECOMPENSAS SUGERIDAS</h3>
                     <div class="space-y-3">
                         ${getRewards()}
@@ -762,14 +1238,32 @@
                 </div>
                 
                 <!-- CTA -->
-                <div class="border-2 border-cta-orange p-8 text-center animate-fade-up" style="animation-delay: 0.5s">
+                <div class="result-card border-2 border-cta-orange p-8 text-center" data-index="5">
                     <h3 class="font-archivo text-2xl mb-4">LISTO PARA IMPLEMENTAR?</h3>
                     <p class="text-gray-400 mb-6">Agenda una sesion con nuestro equipo para llevar este plan a la realidad.</p>
                     <a href="https://calltoactionplus.com" target="_blank" class="btn-cta inline-block">
-                        CONTACTAR A CTA+
+                        <span>CONTACTAR A CTA+</span>
                     </a>
                 </div>
             `;
+            
+            // Trigger staggered entrance
+            setTimeout(() => {
+                document.querySelectorAll('.result-card').forEach((card, i) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, i * 150);
+                });
+                
+                // Animate table rows
+                setTimeout(() => {
+                    document.querySelectorAll('.table-row').forEach((row, i) => {
+                        setTimeout(() => {
+                            row.classList.add('visible');
+                        }, i * 50);
+                    });
+                }, 600);
+            }, 200);
         }
         
         // Helper functions for results
@@ -899,8 +1393,8 @@
             };
             
             const rows = tables[selectedCategory] || tables.empresarial;
-            return rows.map(([action, points]) => `
-                <tr class="border-b border-cta-border">
+            return rows.map(([action, points], i) => `
+                <tr class="table-row border-b border-cta-border" data-index="${i}">
                     <td class="py-3">${action}</td>
                     <td class="py-3 text-right text-cta-orange font-bold">+${points}</td>
                 </tr>
@@ -939,7 +1433,7 @@
             }
             
             return rewards.map(r => `
-                <div class="flex items-center gap-3 border border-cta-border p-3">
+                <div class="flex items-center gap-3 border border-cta-border p-3 transition-all duration-300 hover:border-cta-orange hover:translate-x-2">
                     <span class="text-cta-orange">+</span>
                     <span>${r}</span>
                 </div>
