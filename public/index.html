@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTA+ Gamification Wizard</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cta-orange': '#F45325',
+                        'cta-dark': '#1A1A2E',
+                        'cta-border': 'rgba(255,255,255,0.125)'
+                    },
+                    fontFamily: {
+                        'archivo': ['Archivo Black', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            border-radius: 0 !important;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        .font-archivo {
+            font-family: 'Archivo Black', sans-serif;
+        }
+        
+        /* Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .animate-fade-up {
+            animation: fadeUp 0.6s ease-out forwards;
+        }
+        
+        .animate-scale-in {
+            animation: scaleIn 0.4s ease-out forwards;
+        }
+        
+        .step-hidden {
+            display: none;
+        }
+        
+        /* Category cards hover */
+        .category-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            border-color: #F45325;
+            background-color: rgba(244, 83, 37, 0.1);
+        }
+        
+        .category-card.selected {
+            border-color: #F45325;
+            background-color: rgba(244, 83, 37, 0.15);
+        }
+        
+        /* Option buttons */
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .option-btn:hover {
+            border-color: #F45325;
+        }
+        
+        .option-btn.selected {
+            border-color: #F45325;
+            background-color: rgba(244, 83, 37, 0.2);
+        }
+        
+        /* Multi-select */
+        .multi-option.selected {
+            border-color: #F45325;
+            background-color: rgba(244, 83, 37, 0.2);
+        }
+        
+        /* Input styling */
+        input[type="number"],
+        input[type="text"],
+        textarea {
+            background-color: #1A1A2E;
+            border: 1px solid rgba(255,255,255,0.125);
+            color: #ffffff;
+            padding: 12px 16px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        
+        input:focus,
+        textarea:focus {
+            border-color: #F45325;
+        }
+        
+        /* Progress bar */
+        .progress-fill {
+            transition: width 0.4s ease;
+        }
+        
+        /* CTA Button */
+        .btn-cta {
+            background-color: #F45325;
+            color: #ffffff;
+            padding: 16px 32px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid #F45325;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-cta:hover {
+            background-color: transparent;
+            color: #F45325;
+        }
+        
+        .btn-cta:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #ffffff;
+            padding: 16px 32px;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.125);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            border-color: #ffffff;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Background -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" 
+             alt="Background" 
+             class="w-full h-full object-cover opacity-20">
+        <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
+    </div>
+    
+    <!-- Content -->
+    <div class="relative z-10 min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="border-b border-cta-border p-6">
+            <div class="max-w-6xl mx-auto flex items-center justify-between">
+                <img src="https://calltoactionplus.com/wp-content/uploads/2024/01/logo-cta-plus-white.png" 
+                     alt="CTA+" 
+                     class="h-8">
+                <div class="text-sm text-gray-400">
+                    GAMIFICATION WIZARD
+                </div>
+            </div>
+        </header>
+        
+        <!-- Progress Bar -->
+        <div class="border-b border-cta-border">
+            <div class="max-w-6xl mx-auto px-6 py-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-400">Progreso</span>
+                    <span class="text-sm text-gray-400" id="stepIndicator">Paso 1 de 3</span>
+                </div>
+                <div class="h-1 bg-cta-dark w-full">
+                    <div class="h-full bg-cta-orange progress-fill" id="progressBar" style="width: 33%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 py-12 px-6">
+            <div class="max-w-4xl mx-auto">
+                
+                <!-- STEP 1: Category Selection -->
+                <div id="step1" class="step animate-fade-up">
+                    <h1 class="font-archivo text-4xl md:text-6xl mb-4">
+                        SELECCIONA TU<br>
+                        <span class="text-cta-orange">CATEGORIA</span>
+                    </h1>
+                    <p class="text-gray-400 text-lg mb-12 max-w-xl">
+                        Elige el tipo de gamificacion que mejor se adapta a las necesidades de tu empresa.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <!-- Empresarial -->
+                        <div class="category-card border border-cta-border p-8 animate-scale-in" 
+                             data-category="empresarial"
+                             onclick="selectCategory('empresarial')">
+                            <div class="text-5xl mb-6">01</div>
+                            <h3 class="font-archivo text-xl mb-3">EMPRESARIAL</h3>
+                            <p class="text-gray-400 text-sm">
+                                Cultura organizacional, clima laboral, productividad y engagement de empleados.
+                            </p>
+                        </div>
+                        
+                        <!-- Ventas -->
+                        <div class="category-card border border-cta-border p-8 animate-scale-in" 
+                             style="animation-delay: 0.1s"
+                             data-category="ventas"
+                             onclick="selectCategory('ventas')">
+                            <div class="text-5xl mb-6">02</div>
+                            <h3 class="font-archivo text-xl mb-3">VENTAS</h3>
+                            <p class="text-gray-400 text-sm">
+                                Conversion, metas comerciales, incentivos y competencia entre vendedores.
+                            </p>
+                        </div>
+                        
+                        <!-- Equipos -->
+                        <div class="category-card border border-cta-border p-8 animate-scale-in" 
+                             style="animation-delay: 0.2s"
+                             data-category="equipos"
+                             onclick="selectCategory('equipos')">
+                            <div class="text-5xl mb-6">03</div>
+                            <h3 class="font-archivo text-xl mb-3">EQUIPOS</h3>
+                            <p class="text-gray-400 text-sm">
+                                Team building, actividades de integracion, cohesion y dinamicas grupales.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 flex justify-end">
+                        <button class="btn-cta" id="btnStep1" onclick="goToStep(2)" disabled>
+                            CONTINUAR
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- STEP 2: Questions -->
+                <div id="step2" class="step step-hidden">
+                    <h1 class="font-archivo text-4xl md:text-5xl mb-4">
+                        DIAGNOSTICO<br>
+                        <span class="text-cta-orange" id="categoryTitle">EMPRESARIAL</span>
+                    </h1>
+                    <p class="text-gray-400 text-lg mb-12">
+                        Responde las siguientes preguntas para personalizar tu plan de gamificacion.
+                    </p>
+                    
+                    <!-- Questions Container -->
+                    <div id="questionsContainer" class="space-y-8">
+                        <!-- Questions will be injected here -->
+                    </div>
+                    
+                    <div class="mt-12 flex justify-between">
+                        <button class="btn-secondary" onclick="goToStep(1)">
+                            ATRAS
+                        </button>
+                        <button class="btn-cta" id="btnStep2" onclick="goToStep(3)" disabled>
+                            GENERAR PLAN
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- STEP 3: Results -->
+                <div id="step3" class="step step-hidden">
+                    <h1 class="font-archivo text-4xl md:text-5xl mb-4">
+                        TU PLAN<br>
+                        <span class="text-cta-orange">GAMIFICADO</span>
+                    </h1>
+                    
+                    <div id="resultsContainer" class="space-y-8 mt-12">
+                        <!-- Results will be injected here -->
+                    </div>
+                    
+                    <div class="mt-12 flex justify-between">
+                        <button class="btn-secondary" onclick="goToStep(2)">
+                            MODIFICAR RESPUESTAS
+                        </button>
+                        <button class="btn-cta" onclick="downloadPlan()">
+                            DESCARGAR PDF
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="border-t border-cta-border p-6">
+            <div class="max-w-6xl mx-auto text-center text-gray-500 text-sm">
+                CTA+ GAMIFICATION WIZARD - Powered by Call To Action Plus
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // =====================
+        // DATA: Questions
+        // =====================
+        const questions = {
+            empresarial: [
+                {
+                    id: 'E1',
+                    question: 'Cuantos empleados participaran en el programa?',
+                    type: 'number',
+                    placeholder: 'Ej: 50'
+                },
+                {
+                    id: 'E2',
+                    question: 'Cual es el problema principal que quieren resolver?',
+                    type: 'single',
+                    options: [
+                        'Rotacion alta de personal',
+                        'Baja productividad',
+                        'Mal clima laboral',
+                        'Falta de compromiso',
+                        'Comunicacion deficiente'
+                    ]
+                },
+                {
+                    id: 'E3',
+                    question: 'Que comportamientos quieren incentivar?',
+                    type: 'multi',
+                    options: [
+                        'Puntualidad',
+                        'Colaboracion',
+                        'Iniciativa propia',
+                        'Cumplimiento de metas',
+                        'Innovacion',
+                        'Capacitacion continua'
+                    ]
+                },
+                {
+                    id: 'E4',
+                    question: 'Tienen presupuesto asignado para recompensas?',
+                    type: 'single',
+                    options: [
+                        'Sin presupuesto definido',
+                        '$1 - $500.000 COP',
+                        '$500.000 - $2.000.000 COP',
+                        'Mas de $2.000.000 COP'
+                    ]
+                },
+                {
+                    id: 'E5',
+                    question: 'En cuanto tiempo esperan ver resultados medibles?',
+                    type: 'single',
+                    options: [
+                        '1 mes',
+                        '3 meses',
+                        '6 meses',
+                        '1 ano'
+                    ]
+                }
+            ],
+            ventas: [
+                {
+                    id: 'V1',
+                    question: 'Cuantos vendedores o agentes comerciales tienen?',
+                    type: 'number',
+                    placeholder: 'Ej: 15'
+                },
+                {
+                    id: 'V2',
+                    question: 'Cual es su ticket promedio de venta?',
+                    type: 'number',
+                    placeholder: 'Ej: 500000',
+                    prefix: '$'
+                },
+                {
+                    id: 'V3',
+                    question: 'Que porcentaje de la meta mensual estan cumpliendo?',
+                    type: 'single',
+                    options: [
+                        'Menos del 25%',
+                        '25% - 50%',
+                        '50% - 75%',
+                        '75% - 100%',
+                        'Superamos la meta (+100%)'
+                    ]
+                },
+                {
+                    id: 'V4',
+                    question: 'Como compensan actualmente a los vendedores?',
+                    type: 'multi',
+                    options: [
+                        'Salario fijo unicamente',
+                        'Comision por cada venta',
+                        'Bonos por cumplir meta',
+                        'Premios en especie',
+                        'Reconocimiento publico'
+                    ]
+                },
+                {
+                    id: 'V5',
+                    question: 'Que metrica quieren mejorar principalmente?',
+                    type: 'single',
+                    options: [
+                        'Volumen total de ventas',
+                        'Ticket promedio',
+                        'Retencion de clientes',
+                        'Adquisicion de nuevos clientes',
+                        'Upselling / Cross-selling'
+                    ]
+                },
+                {
+                    id: 'V6',
+                    question: 'Sus vendedores prefieren competir o colaborar?',
+                    type: 'single',
+                    options: [
+                        'Competencia individual',
+                        'Competencia por equipos',
+                        'Colaboracion y metas grupales',
+                        'No estoy seguro'
+                    ]
+                }
+            ],
+            equipos: [
+                {
+                    id: 'Q1',
+                    question: 'Cuantas personas participaran?',
+                    type: 'number',
+                    placeholder: 'Ej: 30'
+                },
+                {
+                    id: 'Q2',
+                    question: 'Es un evento unico o un programa continuo?',
+                    type: 'single',
+                    options: [
+                        'Evento unico',
+                        'Programa mensual',
+                        'Programa trimestral',
+                        'Programa anual'
+                    ]
+                },
+                {
+                    id: 'Q3',
+                    question: 'La actividad sera presencial, virtual o hibrida?',
+                    type: 'single',
+                    options: [
+                        'Presencial',
+                        'Virtual',
+                        'Hibrida'
+                    ]
+                },
+                {
+                    id: 'Q4',
+                    question: 'Cual es el objetivo principal?',
+                    type: 'single',
+                    options: [
+                        'Integrar nuevos miembros',
+                        'Mejorar comunicacion',
+                        'Resolver conflictos internos',
+                        'Celebrar logros del equipo',
+                        'Diversion y desconexion'
+                    ]
+                },
+                {
+                    id: 'Q5',
+                    question: 'Cuanto tiempo tienen disponible?',
+                    type: 'single',
+                    options: [
+                        '2 horas',
+                        'Medio dia (4 horas)',
+                        'Dia completo (8 horas)',
+                        'Multiples dias'
+                    ]
+                }
+            ]
+        };
+        
+        // =====================
+        // STATE
+        // =====================
+        let selectedCategory = null;
+        let answers = {};
+        
+        // =====================
+        // FUNCTIONS
+        // =====================
+        
+        function selectCategory(category) {
+            selectedCategory = category;
+            
+            // Update UI
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-category="${category}"]`).classList.add('selected');
+            
+            // Enable continue button
+            document.getElementById('btnStep1').disabled = false;
+        }
+        
+        function goToStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step').forEach(s => {
+                s.classList.add('step-hidden');
+            });
+            
+            // Show target step
+            const targetStep = document.getElementById(`step${step}`);
+            targetStep.classList.remove('step-hidden');
+            targetStep.classList.add('animate-fade-up');
+            
+            // Update progress
+            const progress = (step / 3) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('stepIndicator').textContent = `Paso ${step} de 3`;
+            
+            // Step-specific logic
+            if (step === 2) {
+                renderQuestions();
+            } else if (step === 3) {
+                generateResults();
+            }
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const categoryQuestions = questions[selectedCategory];
+            
+            // Update title
+            const titles = {
+                empresarial: 'EMPRESARIAL',
+                ventas: 'VENTAS',
+                equipos: 'EQUIPOS'
+            };
+            document.getElementById('categoryTitle').textContent = titles[selectedCategory];
+            
+            // Build questions HTML
+            let html = '';
+            categoryQuestions.forEach((q, index) => {
+                html += `
+                    <div class="border border-cta-border p-6 animate-fade-up" style="animation-delay: ${index * 0.1}s">
+                        <div class="flex items-start gap-4 mb-4">
+                            <span class="text-cta-orange font-archivo text-2xl">${String(index + 1).padStart(2, '0')}</span>
+                            <h3 class="text-xl font-medium">${q.question}</h3>
+                        </div>
+                        <div class="ml-12">
+                            ${renderInput(q)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Reset answers for this category
+            answers = {};
+            updateStep2Button();
+        }
+        
+        function renderInput(q) {
+            if (q.type === 'number') {
+                return `
+                    <input type="number" 
+                           id="${q.id}" 
+                           placeholder="${q.placeholder || ''}"
+                           onchange="updateAnswer('${q.id}', this.value)">
+                `;
+            } else if (q.type === 'single') {
+                return `
+                    <div class="grid md:grid-cols-2 gap-3">
+                        ${q.options.map(opt => `
+                            <button class="option-btn border border-cta-border p-4 text-left text-sm"
+                                    onclick="selectOption('${q.id}', '${opt}', this)">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (q.type === 'multi') {
+                return `
+                    <div class="grid md:grid-cols-2 gap-3">
+                        ${q.options.map(opt => `
+                            <button class="multi-option border border-cta-border p-4 text-left text-sm"
+                                    onclick="toggleMultiOption('${q.id}', '${opt}', this)">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <p class="text-gray-500 text-sm mt-2">Puedes seleccionar multiples opciones</p>
+                `;
+            }
+        }
+        
+        function updateAnswer(id, value) {
+            answers[id] = value;
+            updateStep2Button();
+        }
+        
+        function selectOption(id, value, element) {
+            // Remove selection from siblings
+            element.parentElement.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Select this one
+            element.classList.add('selected');
+            answers[id] = value;
+            updateStep2Button();
+        }
+        
+        function toggleMultiOption(id, value, element) {
+            element.classList.toggle('selected');
+            
+            // Update answers array
+            if (!answers[id]) answers[id] = [];
+            
+            if (element.classList.contains('selected')) {
+                answers[id].push(value);
+            } else {
+                answers[id] = answers[id].filter(v => v !== value);
+            }
+            
+            updateStep2Button();
+        }
+        
+        function updateStep2Button() {
+            const categoryQuestions = questions[selectedCategory];
+            const requiredCount = categoryQuestions.length;
+            const answeredCount = Object.keys(answers).filter(key => {
+                const val = answers[key];
+                return val && (Array.isArray(val) ? val.length > 0 : true);
+            }).length;
+            
+            document.getElementById('btnStep2').disabled = answeredCount < requiredCount;
+        }
+        
+        function generateResults() {
+            const container = document.getElementById('resultsContainer');
+            
+            // Get category-specific data
+            const categoryData = {
+                empresarial: {
+                    title: 'Gamificacion Empresarial',
+                    icon: '01',
+                    mechanics: getMechanicsForEmpresarial()
+                },
+                ventas: {
+                    title: 'Gamificacion de Ventas',
+                    icon: '02',
+                    mechanics: getMechanicsForVentas()
+                },
+                equipos: {
+                    title: 'Gamificacion de Equipos',
+                    icon: '03',
+                    mechanics: getMechanicsForEquipos()
+                }
+            };
+            
+            const data = categoryData[selectedCategory];
+            
+            // Build results HTML
+            container.innerHTML = `
+                <!-- Summary -->
+                <div class="border border-cta-border p-8 animate-fade-up">
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="text-cta-orange font-archivo text-4xl">${data.icon}</span>
+                        <h2 class="font-archivo text-2xl">${data.title.toUpperCase()}</h2>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="border border-cta-border p-4">
+                            <div class="text-gray-400 text-sm mb-1">Participantes</div>
+                            <div class="text-2xl font-bold">${getParticipants()}</div>
+                        </div>
+                        <div class="border border-cta-border p-4">
+                            <div class="text-gray-400 text-sm mb-1">Duracion Sugerida</div>
+                            <div class="text-2xl font-bold">${getDuration()}</div>
+                        </div>
+                        <div class="border border-cta-border p-4">
+                            <div class="text-gray-400 text-sm mb-1">Complejidad</div>
+                            <div class="text-2xl font-bold text-cta-orange">${getComplexity()}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Diagnostico -->
+                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.1s">
+                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">DIAGNOSTICO</h3>
+                    <div class="space-y-4">
+                        ${getDiagnosticItems()}
+                    </div>
+                </div>
+                
+                <!-- Mecanicas -->
+                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.2s">
+                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">MECANICAS RECOMENDADAS</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        ${data.mechanics.map(m => `
+                            <div class="border border-cta-border p-4">
+                                <div class="font-bold mb-2">${m.name}</div>
+                                <div class="text-gray-400 text-sm">${m.description}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <!-- Sistema de Puntos -->
+                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.3s">
+                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">SISTEMA DE PUNTOS SUGERIDO</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b border-cta-border">
+                                <tr>
+                                    <th class="pb-3 font-medium">Accion</th>
+                                    <th class="pb-3 font-medium text-right">Puntos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-300">
+                                ${getPointsTable()}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Recompensas -->
+                <div class="border border-cta-border p-8 animate-fade-up" style="animation-delay: 0.4s">
+                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">RECOMPENSAS SUGERIDAS</h3>
+                    <div class="space-y-3">
+                        ${getRewards()}
+                    </div>
+                </div>
+                
+                <!-- CTA -->
+                <div class="border-2 border-cta-orange p-8 text-center animate-fade-up" style="animation-delay: 0.5s">
+                    <h3 class="font-archivo text-2xl mb-4">LISTO PARA IMPLEMENTAR?</h3>
+                    <p class="text-gray-400 mb-6">Agenda una sesion con nuestro equipo para llevar este plan a la realidad.</p>
+                    <a href="https://calltoactionplus.com" target="_blank" class="btn-cta inline-block">
+                        CONTACTAR A CTA+
+                    </a>
+                </div>
+            `;
+        }
+        
+        // Helper functions for results
+        function getParticipants() {
+            const keys = ['E1', 'V1', 'Q1'];
+            for (const key of keys) {
+                if (answers[key]) return answers[key];
+            }
+            return 'N/A';
+        }
+        
+        function getDuration() {
+            if (answers['E5']) return answers['E5'];
+            if (answers['Q5']) return answers['Q5'];
+            if (answers['Q2']) {
+                if (answers['Q2'].includes('unico')) return '1 dia';
+                return 'Continuo';
+            }
+            return '3 meses';
+        }
+        
+        function getComplexity() {
+            const participants = parseInt(getParticipants()) || 0;
+            if (participants < 20) return 'Baja';
+            if (participants < 50) return 'Media';
+            return 'Alta';
+        }
+        
+        function getDiagnosticItems() {
+            let items = [];
+            
+            if (answers['E2']) items.push(`Problema principal: ${answers['E2']}`);
+            if (answers['E3']) items.push(`Comportamientos a incentivar: ${answers['E3'].join(', ')}`);
+            if (answers['V3']) items.push(`Cumplimiento actual de meta: ${answers['V3']}`);
+            if (answers['V5']) items.push(`Metrica objetivo: ${answers['V5']}`);
+            if (answers['Q4']) items.push(`Objetivo principal: ${answers['Q4']}`);
+            if (answers['Q3']) items.push(`Modalidad: ${answers['Q3']}`);
+            
+            return items.map(item => `
+                <div class="flex items-center gap-3">
+                    <span class="text-cta-orange">+</span>
+                    <span>${item}</span>
+                </div>
+            `).join('');
+        }
+        
+        function getMechanicsForEmpresarial() {
+            let mechanics = [
+                { name: 'Sistema de Puntos', description: 'Acumulacion por acciones positivas diarias' },
+                { name: 'Niveles de Empleado', description: 'Progresion visible con beneficios por nivel' }
+            ];
+            
+            if (answers['E2']?.includes('Rotacion')) {
+                mechanics.push({ name: 'Programa de Retencion', description: 'Bonos por antiguedad y streaks mensuales' });
+            }
+            if (answers['E3']?.includes('Colaboracion')) {
+                mechanics.push({ name: 'Misiones en Equipo', description: 'Retos grupales con recompensas compartidas' });
+            }
+            
+            mechanics.push({ name: 'Reconocimiento Publico', description: 'Destacar logros en canales internos' });
+            
+            return mechanics;
+        }
+        
+        function getMechanicsForVentas() {
+            let mechanics = [
+                { name: 'Leaderboard en Tiempo Real', description: 'Ranking visible de vendedores actualizado diario' },
+                { name: 'Badges de Logro', description: 'Insignias por metas alcanzadas' }
+            ];
+            
+            if (answers['V6']?.includes('individual')) {
+                mechanics.push({ name: 'Competencias Semanales', description: 'Torneos cortos con premios rapidos' });
+            } else {
+                mechanics.push({ name: 'Metas de Equipo', description: 'Objetivos grupales con bonificacion compartida' });
+            }
+            
+            mechanics.push({ name: 'Multiplicadores', description: 'Bonus de puntos por rachas de ventas consecutivas' });
+            mechanics.push({ name: 'Power-ups', description: 'Ventajas temporales canjeables por puntos' });
+            
+            return mechanics;
+        }
+        
+        function getMechanicsForEquipos() {
+            let mechanics = [
+                { name: 'Narrativa Tematica', description: 'Historia envolvente que contextualiza las actividades' },
+                { name: 'Retos Colaborativos', description: 'Desafios que requieren trabajo en equipo' }
+            ];
+            
+            if (answers['Q4']?.includes('conflictos')) {
+                mechanics.push({ name: 'Dinamicas de Confianza', description: 'Ejercicios para construir vinculos' });
+            }
+            if (answers['Q4']?.includes('Integrar')) {
+                mechanics.push({ name: 'Icebreakers Gamificados', description: 'Juegos de presentacion con puntos' });
+            }
+            
+            mechanics.push({ name: 'Competencia por Equipos', description: 'Division en grupos con tabla de posiciones' });
+            mechanics.push({ name: 'Recompensas Experienciales', description: 'Premios basados en experiencias compartidas' });
+            
+            return mechanics;
+        }
+        
+        function getPointsTable() {
+            const tables = {
+                empresarial: [
+                    ['Llegar puntual', '10'],
+                    ['Completar tarea del dia', '25'],
+                    ['Ayudar a un companero', '15'],
+                    ['Proponer mejora implementada', '100'],
+                    ['Completar capacitacion', '50'],
+                    ['Cumplir meta semanal', '200']
+                ],
+                ventas: [
+                    ['Llamada realizada', '5'],
+                    ['Reunion agendada', '20'],
+                    ['Propuesta enviada', '30'],
+                    ['Venta cerrada', '100'],
+                    ['Upsell logrado', '50'],
+                    ['Referido que compra', '75']
+                ],
+                equipos: [
+                    ['Participar en dinamica', '10'],
+                    ['Completar reto grupal', '50'],
+                    ['Ayudar a otro equipo', '25'],
+                    ['Ganar competencia', '100'],
+                    ['Mejor actitud (votacion)', '75']
+                ]
+            };
+            
+            const rows = tables[selectedCategory] || tables.empresarial;
+            return rows.map(([action, points]) => `
+                <tr class="border-b border-cta-border">
+                    <td class="py-3">${action}</td>
+                    <td class="py-3 text-right text-cta-orange font-bold">+${points}</td>
+                </tr>
+            `).join('');
+        }
+        
+        function getRewards() {
+            const budget = answers['E4'] || 'Sin presupuesto definido';
+            
+            let rewards = [];
+            
+            if (budget.includes('Sin presupuesto')) {
+                rewards = [
+                    'Reconocimiento publico en reunion general',
+                    'Dia libre adicional',
+                    'Horario flexible por una semana',
+                    'Lugar de estacionamiento preferencial',
+                    'Almuerzo con el CEO/Director'
+                ];
+            } else if (budget.includes('500.000')) {
+                rewards = [
+                    'Bonos de regalo ($50.000 - $100.000)',
+                    'Cena para dos personas',
+                    'Suscripcion a streaming (1 mes)',
+                    'Kit de marca personalizado',
+                    'Dia libre adicional'
+                ];
+            } else {
+                rewards = [
+                    'Bonos monetarios significativos',
+                    'Viaje de fin de semana',
+                    'Tecnologia (audifonos, gadgets)',
+                    'Experiencias premium (spa, aventura)',
+                    'Cursos o certificaciones pagadas'
+                ];
+            }
+            
+            return rewards.map(r => `
+                <div class="flex items-center gap-3 border border-cta-border p-3">
+                    <span class="text-cta-orange">+</span>
+                    <span>${r}</span>
+                </div>
+            `).join('');
+        }
+        
+        function downloadPlan() {
+            alert('Funcion de descarga PDF en desarrollo. Contacta a CTA+ para obtener tu plan completo.');
+        }
+    </script>
+</body>
+</html>
