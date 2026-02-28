@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CTA+ GAMIFICATION WIZARD</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -19,7 +17,10 @@
                     colors: {
                         'cta-orange': '#F45325',
                         'cta-dark': '#1A1A2E',
-                        'cta-border': 'rgba(255,255,255,0.125)'
+                        'achiever': '#FFD700',
+                        'explorer': '#00CED1',
+                        'socializer': '#FF69B4',
+                        'killer': '#DC143C'
                     },
                     fontFamily: {
                         'archivo': ['Archivo Black', 'sans-serif'],
@@ -31,767 +32,189 @@
     </script>
     
     <style>
-        * {
-            border-radius: 0 !important;
-            cursor: none !important;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000000;
-            color: #ffffff;
-            overflow-x: hidden;
-        }
-        
-        .font-archivo {
-            font-family: 'Archivo Black', sans-serif;
-        }
-        
-        /* =====================
-           CUSTOM CURSOR
-           ===================== */
-        .cursor-main {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            pointer-events: none;
-            z-index: 99999;
-            mix-blend-mode: difference;
-        }
-        
-        .cursor-main::before,
-        .cursor-main::after {
-            content: '';
-            position: absolute;
-            background: #fff;
-        }
-        
-        .cursor-main::before {
-            width: 20px;
-            height: 2px;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-        }
-        
-        .cursor-main::after {
-            width: 2px;
-            height: 20px;
-            left: 50%;
-            top: 0;
-            transform: translateX(-50%);
-        }
-        
-        .cursor-dot {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            background: #F45325;
-            pointer-events: none;
-            z-index: 99998;
-            transition: transform 0.1s ease;
-        }
-        
-        .cursor-dot.clicking {
-            transform: scale(3);
-            opacity: 0.5;
-        }
-        
-        /* =====================
-           LOADING SCREEN
-           ===================== */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        
-        .loading-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        .loading-text {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 1rem;
-            letter-spacing: 0.5em;
-            color: #F45325;
-            animation: loadingPulse 0.5s ease infinite alternate;
-        }
-        
-        .loading-counter {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 15vw;
-            color: #fff;
-            line-height: 1;
-        }
-        
-        .loading-bar {
-            width: 200px;
-            height: 3px;
-            background: rgba(255,255,255,0.1);
-            margin-top: 2rem;
-            overflow: hidden;
-        }
-        
-        .loading-bar-fill {
-            height: 100%;
-            background: #F45325;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-        
-        @keyframes loadingPulse {
-            from { opacity: 0.5; }
-            to { opacity: 1; }
-        }
-        
-        /* =====================
-           NOISE TEXTURE
-           ===================== */
-        .noise {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9998;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-        }
-        
-        /* Scanlines */
-        .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9997;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.1) 0px,
-                rgba(0, 0, 0, 0.1) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            opacity: 0.3;
-        }
-        
-        /* =====================
-           GRID OVERLAY
-           ===================== */
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            background-image: 
-                linear-gradient(rgba(244, 83, 37, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(244, 83, 37, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
-        
-        .grid-coords {
-            position: fixed;
-            font-family: 'Inter', sans-serif;
-            font-size: 10px;
-            color: rgba(244, 83, 37, 0.3);
-            z-index: 2;
-            letter-spacing: 0.1em;
-        }
-        
-        .grid-coords.top-left { top: 10px; left: 10px; }
-        .grid-coords.top-right { top: 10px; right: 10px; }
-        .grid-coords.bottom-left { bottom: 10px; left: 10px; }
-        .grid-coords.bottom-right { bottom: 10px; right: 10px; }
-        
-        /* =====================
-           MARQUEE
-           ===================== */
-        .marquee-container {
-            overflow: hidden;
-            border-top: 2px solid rgba(255,255,255,0.1);
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-            padding: 1rem 0;
-            background: rgba(244, 83, 37, 0.05);
-        }
-        
-        .marquee {
-            display: flex;
-            animation: marquee 20s linear infinite;
-        }
-        
-        .marquee-content {
-            display: flex;
-            flex-shrink: 0;
-        }
-        
-        .marquee-item {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 1.5rem;
-            color: rgba(255,255,255,0.5);
-            white-space: nowrap;
-            padding: 0 2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-        }
-        
-        .marquee-item span {
-            color: #F45325;
-        }
-        
-        @keyframes marquee {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
-        
-        /* =====================
-           OVERSIZED TYPOGRAPHY
-           ===================== */
-        .title-oversized {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: clamp(4rem, 20vw, 15rem);
-            line-height: 0.85;
-            letter-spacing: -0.03em;
-            text-transform: uppercase;
-        }
-        
-        .title-outline {
-            -webkit-text-stroke: 2px #fff;
-            color: transparent;
-        }
-        
-        .title-orange {
-            color: #F45325;
-        }
-        
-        .text-vertical {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            position: absolute;
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 0.75rem;
-            letter-spacing: 0.3em;
-            color: rgba(255,255,255,0.2);
-        }
-        
-        /* =====================
-           GLITCH EFFECT
-           ===================== */
-        .glitch {
-            position: relative;
-        }
-        
-        .glitch::before,
-        .glitch::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .glitch::before {
-            color: #0ff;
-            animation: glitch-1 0.3s infinite linear alternate-reverse;
-            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-        }
-        
-        .glitch::after {
-            color: #f0f;
-            animation: glitch-2 0.3s infinite linear alternate-reverse;
-            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-        }
-        
-        @keyframes glitch-1 {
-            0% { transform: translateX(0); }
-            20% { transform: translateX(-3px); }
-            40% { transform: translateX(3px); }
-            60% { transform: translateX(-3px); }
-            80% { transform: translateX(3px); }
-            100% { transform: translateX(0); }
-        }
-        
-        @keyframes glitch-2 {
-            0% { transform: translateX(0); }
-            20% { transform: translateX(3px); }
-            40% { transform: translateX(-3px); }
-            60% { transform: translateX(3px); }
-            80% { transform: translateX(-3px); }
-            100% { transform: translateX(0); }
-        }
-        
-        .glitch-hover:hover {
-            animation: glitchFlicker 0.3s steps(2) infinite;
-        }
-        
-        @keyframes glitchFlicker {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
-        }
-        
-        /* =====================
-           BRUTAL BORDERS
-           ===================== */
-        .border-brutal {
-            border: 3px solid rgba(255,255,255,0.2);
-        }
-        
-        .border-brutal-orange {
-            border: 3px solid #F45325;
-        }
-        
-        /* =====================
-           ASYMMETRIC CARDS
-           ===================== */
-        .card-brutal {
-            position: relative;
-            border: 3px solid rgba(255,255,255,0.2);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        .card-brutal::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 100%;
-            height: 100%;
-            border: 1px solid rgba(244, 83, 37, 0.3);
-            z-index: -1;
-            transition: all 0.3s ease;
-        }
-        
-        .card-brutal:hover {
-            border-color: #F45325;
-            transform: translate(-5px, -5px);
-        }
-        
-        .card-brutal:hover::before {
-            top: 10px;
-            right: -20px;
-            border-color: #F45325;
-        }
-        
-        .card-brutal.selected {
-            border-color: #F45325;
-            background: rgba(244, 83, 37, 0.1);
-        }
-        
-        /* =====================
-           CATEGORY NUMBERS
-           ===================== */
-        .number-giant {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 8rem;
-            line-height: 1;
-            color: transparent;
-            -webkit-text-stroke: 2px rgba(255,255,255,0.1);
-            position: absolute;
-            top: -20px;
-            right: -10px;
-            z-index: 0;
-            transition: all 0.4s ease;
-        }
-        
-        .card-brutal:hover .number-giant {
-            -webkit-text-stroke-color: rgba(244, 83, 37, 0.3);
-            transform: scale(1.1);
-        }
-        
-        /* =====================
-           BUTTONS
-           ===================== */
-        .btn-brutal {
-            position: relative;
-            background: #F45325;
-            color: #fff;
-            padding: 1.5rem 3rem;
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 1rem;
-            letter-spacing: 0.1em;
-            border: 3px solid #F45325;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        
-        .btn-brutal::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .btn-brutal:hover::before {
-            left: 100%;
-        }
-        
-        .btn-brutal:hover {
-            background: transparent;
-            color: #F45325;
-            transform: skewX(-5deg);
-        }
-        
-        .btn-brutal:disabled {
-            opacity: 0.3;
-            transform: none;
-        }
-        
-        .btn-ghost {
-            background: transparent;
-            color: #fff;
-            padding: 1.5rem 3rem;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            border: 2px solid rgba(255,255,255,0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .btn-ghost:hover {
-            border-color: #fff;
-            transform: skewX(5deg);
-        }
-        
-        /* =====================
-           OPTION BUTTONS
-           ===================== */
-        .option-brutal {
-            position: relative;
-            border: 2px solid rgba(255,255,255,0.1);
-            padding: 1.25rem;
-            text-align: left;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            overflow: hidden;
-        }
-        
-        .option-brutal::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 0;
-            background: #F45325;
-            transition: height 0.3s ease;
-        }
-        
-        .option-brutal:hover {
-            border-color: rgba(244, 83, 37, 0.5);
-            padding-left: 2rem;
-        }
-        
-        .option-brutal:hover::before {
-            height: 100%;
-        }
-        
-        .option-brutal.selected {
-            border-color: #F45325;
-            background: rgba(244, 83, 37, 0.15);
-            padding-left: 2rem;
-        }
-        
-        .option-brutal.selected::before {
-            height: 100%;
-        }
-        
-        .option-brutal.selected::after {
-            content: '+';
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 1.5rem;
-            color: #F45325;
-        }
-        
-        /* =====================
-           INPUTS
-           ===================== */
-        input[type="number"],
-        input[type="text"] {
-            background: transparent;
-            border: none;
-            border-bottom: 3px solid rgba(255,255,255,0.2);
-            color: #fff;
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 2rem;
-            padding: 1rem 0;
-            width: 100%;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        
-        input:focus {
-            border-bottom-color: #F45325;
-        }
-        
-        input::placeholder {
-            color: rgba(255,255,255,0.2);
-        }
-        
-        /* =====================
-           PROGRESS
-           ===================== */
-        .progress-brutal {
-            height: 4px;
-            background: rgba(255,255,255,0.05);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .progress-brutal-fill {
-            height: 100%;
-            background: #F45325;
-            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-        
-        .progress-brutal-fill::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: -10px;
-            width: 3px;
-            height: 24px;
-            background: #F45325;
-            animation: progressPulse 1s ease infinite;
-        }
-        
-        @keyframes progressPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* =====================
-           STEP TRANSITIONS
-           ===================== */
-        .step {
-            position: relative;
-        }
-        
-        .step-hidden {
-            display: none;
-        }
-        
-        .transition-wipe {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #F45325;
-            z-index: 9999;
-            transform: translateY(100%);
-            transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1);
-        }
-        
-        .transition-wipe.active {
-            transform: translateY(0);
-        }
-        
-        .transition-wipe.exit {
-            transform: translateY(-100%);
-        }
-        
-        /* =====================
-           ANIMATIONS
-           ===================== */
-        @keyframes revealUp {
-            from {
-                opacity: 0;
-                transform: translateY(100px) skewY(5deg);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) skewY(0);
-            }
-        }
-        
-        @keyframes revealLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .animate-reveal {
-            opacity: 0;
-            animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .animate-reveal-left {
-            opacity: 0;
-            animation: revealLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        /* Stagger delays */
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.4s; }
-        .delay-5 { animation-delay: 0.5s; }
-        .delay-6 { animation-delay: 0.6s; }
-        .delay-7 { animation-delay: 0.7s; }
-        .delay-8 { animation-delay: 0.8s; }
-        
-        /* =====================
-           RESULT CARDS
-           ===================== */
-        .result-brutal {
-            border: 3px solid rgba(255,255,255,0.1);
-            padding: 2rem;
-            position: relative;
-            opacity: 0;
-            transform: translateY(50px);
-        }
-        
-        .result-brutal.visible {
-            animation: revealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .result-brutal::before {
-            content: attr(data-section);
-            position: absolute;
-            top: -12px;
-            left: 20px;
-            background: #000;
-            padding: 0 10px;
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            color: #F45325;
-            text-transform: uppercase;
-        }
-        
-        /* =====================
-           TABLE
-           ===================== */
-        .table-brutal {
-            width: 100%;
-        }
-        
-        .table-brutal th {
-            text-align: left;
-            padding: 1rem 0;
-            border-bottom: 3px solid rgba(255,255,255,0.1);
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 0.8rem;
-            letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.5);
-        }
-        
-        .table-brutal td {
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .table-brutal tr:hover td {
-            color: #F45325;
-        }
-        
-        .points-value {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 1.25rem;
-            color: #F45325;
-        }
-        
-        /* =====================
-           RESPONSIVE
-           ===================== */
-        @media (max-width: 768px) {
-            .title-oversized {
-                font-size: clamp(3rem, 15vw, 8rem);
-            }
-            
-            .number-giant {
-                font-size: 5rem;
-            }
-            
-            .marquee-item {
-                font-size: 1rem;
-            }
-        }
+        * { border-radius: 0 !important; cursor: none !important; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
+        .font-archivo { font-family: 'Archivo Black', sans-serif; }
+        
+        /* Cursor */
+        .cursor-main { position: fixed; width: 20px; height: 20px; pointer-events: none; z-index: 99999; mix-blend-mode: difference; }
+        .cursor-main::before, .cursor-main::after { content: ''; position: absolute; background: #fff; }
+        .cursor-main::before { width: 20px; height: 2px; top: 50%; left: 0; transform: translateY(-50%); }
+        .cursor-main::after { width: 2px; height: 20px; left: 50%; top: 0; transform: translateX(-50%); }
+        .cursor-dot { position: fixed; width: 8px; height: 8px; background: #F45325; pointer-events: none; z-index: 99998; transition: transform 0.1s; }
+        .cursor-dot.clicking { transform: scale(3); opacity: 0.5; }
+        
+        /* Loading */
+        .loading-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s, visibility 0.5s; }
+        .loading-screen.hidden { opacity: 0; visibility: hidden; }
+        .loading-text { font-family: 'Archivo Black'; font-size: 1rem; letter-spacing: 0.5em; color: #F45325; animation: pulse 0.5s infinite alternate; }
+        .loading-counter { font-family: 'Archivo Black'; font-size: 15vw; line-height: 1; }
+        .loading-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.1); margin-top: 2rem; }
+        .loading-bar-fill { height: 100%; background: #F45325; transition: width 0.1s; }
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+        
+        /* Effects */
+        .noise { position: fixed; inset: 0; pointer-events: none; z-index: 9998; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+        .scanlines { position: fixed; inset: 0; pointer-events: none; z-index: 9997; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px); opacity: 0.3; }
+        .grid-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 1; background-image: linear-gradient(rgba(244,83,37,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(244,83,37,0.03) 1px, transparent 1px); background-size: 50px 50px; }
+        .grid-coords { position: fixed; font-size: 10px; color: rgba(244,83,37,0.3); z-index: 2; letter-spacing: 0.1em; }
+        .grid-coords.tl { top: 10px; left: 10px; }
+        .grid-coords.br { bottom: 10px; right: 10px; }
+        
+        /* Marquee */
+        .marquee-container { overflow: hidden; border-top: 2px solid rgba(255,255,255,0.1); border-bottom: 2px solid rgba(255,255,255,0.1); padding: 1rem 0; background: rgba(244,83,37,0.05); }
+        .marquee { display: flex; animation: marquee 20s linear infinite; }
+        .marquee-content { display: flex; flex-shrink: 0; }
+        .marquee-item { font-family: 'Archivo Black'; font-size: 1.5rem; color: rgba(255,255,255,0.5); white-space: nowrap; padding: 0 2rem; text-transform: uppercase; letter-spacing: 0.2em; }
+        .marquee-item span { color: #F45325; }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        
+        /* Typography */
+        .title-oversized { font-family: 'Archivo Black'; font-size: clamp(3rem, 15vw, 12rem); line-height: 0.85; letter-spacing: -0.03em; text-transform: uppercase; }
+        .title-outline { -webkit-text-stroke: 2px #fff; color: transparent; }
+        .title-orange { color: #F45325; }
+        
+        /* Glitch */
+        .glitch { position: relative; }
+        .glitch::before, .glitch::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .glitch::before { color: #0ff; animation: g1 0.3s infinite linear alternate-reverse; clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%); }
+        .glitch::after { color: #f0f; animation: g2 0.3s infinite linear alternate-reverse; clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%); }
+        @keyframes g1 { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-3px); } }
+        @keyframes g2 { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(3px); } }
+        
+        /* Cards */
+        .card-brutal { position: relative; border: 3px solid rgba(255,255,255,0.2); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .card-brutal::before { content: ''; position: absolute; top: -10px; right: -10px; width: 100%; height: 100%; border: 1px solid rgba(244,83,37,0.3); z-index: -1; transition: all 0.3s; }
+        .card-brutal:hover { border-color: #F45325; transform: translate(-5px, -5px); }
+        .card-brutal:hover::before { top: 10px; right: -20px; border-color: #F45325; }
+        .card-brutal.selected { border-color: #F45325; background: rgba(244,83,37,0.1); }
+        .number-giant { font-family: 'Archivo Black'; font-size: 6rem; line-height: 1; color: transparent; -webkit-text-stroke: 2px rgba(255,255,255,0.1); position: absolute; top: -15px; right: -5px; z-index: 0; transition: all 0.4s; }
+        .card-brutal:hover .number-giant { -webkit-text-stroke-color: rgba(244,83,37,0.3); transform: scale(1.1); }
+        
+        /* Bartle Cards */
+        .bartle-option { border: 2px solid rgba(255,255,255,0.1); padding: 1.5rem; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden; }
+        .bartle-option::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 0; transition: height 0.3s; }
+        .bartle-option:hover { transform: translateX(8px); }
+        .bartle-option:hover::before { height: 100%; }
+        .bartle-option.selected { transform: translateX(8px); }
+        .bartle-option.selected::before { height: 100%; }
+        .bartle-option[data-type="achiever"]::before { background: #FFD700; }
+        .bartle-option[data-type="explorer"]::before { background: #00CED1; }
+        .bartle-option[data-type="socializer"]::before { background: #FF69B4; }
+        .bartle-option[data-type="killer"]::before { background: #DC143C; }
+        .bartle-option.selected[data-type="achiever"] { border-color: #FFD700; background: rgba(255,215,0,0.1); }
+        .bartle-option.selected[data-type="explorer"] { border-color: #00CED1; background: rgba(0,206,209,0.1); }
+        .bartle-option.selected[data-type="socializer"] { border-color: #FF69B4; background: rgba(255,105,180,0.1); }
+        .bartle-option.selected[data-type="killer"] { border-color: #DC143C; background: rgba(220,20,60,0.1); }
+        
+        /* Bartle Radar */
+        .radar-container { width: 300px; height: 300px; position: relative; margin: 0 auto; }
+        .radar-bg { position: absolute; inset: 0; border: 2px solid rgba(255,255,255,0.1); }
+        .radar-line { position: absolute; background: rgba(255,255,255,0.05); }
+        .radar-line.h { width: 100%; height: 1px; top: 50%; }
+        .radar-line.v { height: 100%; width: 1px; left: 50%; }
+        .radar-point { position: absolute; width: 12px; height: 12px; border-radius: 50% !important; transform: translate(-50%, -50%); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .radar-label { position: absolute; font-family: 'Archivo Black'; font-size: 0.7rem; letter-spacing: 0.1em; transform: translate(-50%, -50%); }
+        .radar-value { position: absolute; font-family: 'Archivo Black'; font-size: 1.5rem; transform: translate(-50%, -50%); }
+        .radar-shape { position: absolute; inset: 0; }
+        
+        /* Buttons */
+        .btn-brutal { position: relative; background: #F45325; color: #fff; padding: 1.5rem 3rem; font-family: 'Archivo Black'; font-size: 1rem; letter-spacing: 0.1em; border: 3px solid #F45325; transition: all 0.3s; overflow: hidden; }
+        .btn-brutal:hover { background: transparent; color: #F45325; transform: skewX(-5deg); }
+        .btn-brutal:disabled { opacity: 0.3; transform: none; }
+        .btn-ghost { background: transparent; color: #fff; padding: 1.5rem 3rem; font-weight: 600; letter-spacing: 0.1em; border: 2px solid rgba(255,255,255,0.2); transition: all 0.3s; }
+        .btn-ghost:hover { border-color: #fff; transform: skewX(5deg); }
+        
+        /* Options */
+        .option-brutal { border: 2px solid rgba(255,255,255,0.1); padding: 1.25rem; text-align: left; transition: all 0.3s; position: relative; overflow: hidden; }
+        .option-brutal::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 0; background: #F45325; transition: height 0.3s; }
+        .option-brutal:hover { border-color: rgba(244,83,37,0.5); padding-left: 2rem; }
+        .option-brutal:hover::before { height: 100%; }
+        .option-brutal.selected { border-color: #F45325; background: rgba(244,83,37,0.15); padding-left: 2rem; }
+        .option-brutal.selected::before { height: 100%; }
+        
+        /* Inputs */
+        input[type="number"], input[type="text"], input[type="email"], input[type="tel"] { background: transparent; border: none; border-bottom: 3px solid rgba(255,255,255,0.2); color: #fff; font-family: 'Archivo Black'; font-size: 1.5rem; padding: 1rem 0; width: 100%; outline: none; transition: all 0.3s; }
+        input:focus { border-bottom-color: #F45325; }
+        input::placeholder { color: rgba(255,255,255,0.2); font-family: 'Inter'; font-size: 1rem; }
+        
+        /* Progress */
+        .progress-brutal { height: 4px; background: rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+        .progress-brutal-fill { height: 100%; background: #F45325; transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        /* Steps */
+        .step { position: relative; }
+        .step-hidden { display: none; }
+        .transition-wipe { position: fixed; inset: 0; background: #F45325; z-index: 9999; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1); }
+        .transition-wipe.active { transform: translateY(0); }
+        .transition-wipe.exit { transform: translateY(-100%); }
+        
+        /* Animations */
+        @keyframes revealUp { from { opacity: 0; transform: translateY(100px) skewY(5deg); } to { opacity: 1; transform: translateY(0) skewY(0); } }
+        .animate-reveal { opacity: 0; animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; } .delay-6 { animation-delay: 0.6s; }
+        
+        /* Results */
+        .result-brutal { border: 3px solid rgba(255,255,255,0.1); padding: 2rem; position: relative; opacity: 0; transform: translateY(50px); }
+        .result-brutal.visible { animation: revealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .result-brutal::before { content: attr(data-section); position: absolute; top: -12px; left: 20px; background: #000; padding: 0 10px; font-size: 0.7rem; letter-spacing: 0.2em; color: #F45325; text-transform: uppercase; }
+        
+        /* Table */
+        .table-brutal { width: 100%; }
+        .table-brutal th { text-align: left; padding: 1rem 0; border-bottom: 3px solid rgba(255,255,255,0.1); font-family: 'Archivo Black'; font-size: 0.8rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); }
+        .table-brutal td { padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .points-value { font-family: 'Archivo Black'; font-size: 1.25rem; color: #F45325; }
+        
+        /* Profile badges */
+        .profile-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 2px solid; font-family: 'Archivo Black'; font-size: 0.8rem; letter-spacing: 0.1em; }
+        .profile-badge.achiever { border-color: #FFD700; color: #FFD700; }
+        .profile-badge.explorer { border-color: #00CED1; color: #00CED1; }
+        .profile-badge.socializer { border-color: #FF69B4; color: #FF69B4; }
+        .profile-badge.killer { border-color: #DC143C; color: #DC143C; }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
+    <!-- Loading -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-text">INITIALIZING GAMIFICATION PROTOCOL</div>
         <div class="loading-counter" id="loadingCounter">0</div>
-        <div class="loading-bar">
-            <div class="loading-bar-fill" id="loadingBarFill"></div>
-        </div>
+        <div class="loading-bar"><div class="loading-bar-fill" id="loadingBarFill"></div></div>
     </div>
     
-    <!-- Custom Cursor -->
+    <!-- Cursor -->
     <div class="cursor-main" id="cursorMain"></div>
     <div class="cursor-dot" id="cursorDot"></div>
     
-    <!-- Transition Wipe -->
+    <!-- Transition -->
     <div class="transition-wipe" id="transitionWipe"></div>
     
-    <!-- Noise & Scanlines -->
+    <!-- Effects -->
     <div class="noise"></div>
     <div class="scanlines"></div>
-    
-    <!-- Grid Overlay -->
     <div class="grid-overlay"></div>
-    <div class="grid-coords top-left">X:0 Y:0</div>
-    <div class="grid-coords top-right">X:1920 Y:0</div>
-    <div class="grid-coords bottom-left">X:0 Y:1080</div>
-    <div class="grid-coords bottom-right">CTA+ PROTOCOL V3.0</div>
+    <div class="grid-coords tl" id="coords">X:0 Y:0</div>
+    <div class="grid-coords br">CTA+ PROTOCOL V4.0</div>
     
     <!-- Background -->
     <div class="fixed inset-0 z-0">
-        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" 
-             alt="" 
-             class="w-full h-full object-cover opacity-10">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" alt="" class="w-full h-full object-cover opacity-10">
     </div>
     
-    <!-- Main Content -->
+    <!-- Content -->
     <div class="relative z-10 min-h-screen flex flex-col">
         
         <!-- Header -->
         <header class="border-b-2 border-white/10 p-6">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <img src="https://calltoactionplus.com/wp-content/uploads/2024/01/logo-cta-plus-white.png" 
-                     alt="CTA+" 
-                     class="h-6 animate-reveal-left">
-                <div class="text-xs tracking-[0.3em] text-white/30 animate-reveal delay-2">
-                    GAMIFICATION WIZARD
-                </div>
+                <img src="https://calltoactionplus.com/wp-content/uploads/2024/01/logo-cta-plus-white.png" alt="CTA+" class="h-6">
+                <div class="text-xs tracking-[0.3em] text-white/30">GAMIFICATION WIZARD</div>
             </div>
         </header>
         
         <!-- Progress -->
         <div class="progress-brutal">
-            <div class="progress-brutal-fill" id="progressBar" style="width: 33%"></div>
+            <div class="progress-brutal-fill" id="progressBar" style="width: 25%"></div>
         </div>
         
         <!-- Marquee -->
@@ -800,24 +223,14 @@
                 <div class="marquee-content">
                     <span class="marquee-item">GAMIFICATION <span>+</span></span>
                     <span class="marquee-item">STRATEGY <span>+</span></span>
-                    <span class="marquee-item">RESULTS <span>+</span></span>
-                    <span class="marquee-item">ENGAGEMENT <span>+</span></span>
-                    <span class="marquee-item">PERFORMANCE <span>+</span></span>
-                    <span class="marquee-item">GAMIFICATION <span>+</span></span>
-                    <span class="marquee-item">STRATEGY <span>+</span></span>
-                    <span class="marquee-item">RESULTS <span>+</span></span>
+                    <span class="marquee-item">BARTLE TEST <span>+</span></span>
                     <span class="marquee-item">ENGAGEMENT <span>+</span></span>
                     <span class="marquee-item">PERFORMANCE <span>+</span></span>
                 </div>
                 <div class="marquee-content">
                     <span class="marquee-item">GAMIFICATION <span>+</span></span>
                     <span class="marquee-item">STRATEGY <span>+</span></span>
-                    <span class="marquee-item">RESULTS <span>+</span></span>
-                    <span class="marquee-item">ENGAGEMENT <span>+</span></span>
-                    <span class="marquee-item">PERFORMANCE <span>+</span></span>
-                    <span class="marquee-item">GAMIFICATION <span>+</span></span>
-                    <span class="marquee-item">STRATEGY <span>+</span></span>
-                    <span class="marquee-item">RESULTS <span>+</span></span>
+                    <span class="marquee-item">BARTLE TEST <span>+</span></span>
                     <span class="marquee-item">ENGAGEMENT <span>+</span></span>
                     <span class="marquee-item">PERFORMANCE <span>+</span></span>
                 </div>
@@ -828,399 +241,451 @@
         <main class="flex-1 py-16 px-6">
             <div class="max-w-6xl mx-auto">
                 
-                <!-- STEP 1 -->
+                <!-- STEP 1: Category -->
                 <div id="step1" class="step">
-                    <!-- Vertical text -->
-                    <div class="text-vertical left-0 top-1/2 -translate-y-1/2 hidden lg:block">
-                        STEP 01 / SELECT
-                    </div>
+                    <h1 class="title-oversized title-outline animate-reveal glitch" data-text="SELECT">SELECT</h1>
+                    <h1 class="title-oversized title-orange animate-reveal delay-1 glitch" data-text="CATEGORY">CATEGORY</h1>
+                    <p class="text-white/40 text-lg my-12 max-w-xl animate-reveal delay-2">Choose the gamification type that best fits your company's needs.</p>
                     
-                    <!-- Oversized Title -->
-                    <div class="overflow-hidden mb-4">
-                        <h1 class="title-oversized title-outline animate-reveal glitch" data-text="SELECT">
-                            SELECT
-                        </h1>
-                    </div>
-                    <div class="overflow-hidden mb-12">
-                        <h1 class="title-oversized title-orange animate-reveal delay-1 glitch" data-text="CATEGORY">
-                            CATEGORY
-                        </h1>
-                    </div>
-                    
-                    <p class="text-white/40 text-lg mb-16 max-w-xl animate-reveal delay-2">
-                        Choose the gamification type that best fits your company's needs.
-                    </p>
-                    
-                    <!-- Category Cards -->
                     <div class="grid md:grid-cols-3 gap-8">
-                        <!-- Card 1 -->
-                        <div class="card-brutal p-8 animate-reveal delay-3 glitch-hover" 
-                             data-category="empresarial"
-                             onclick="selectCategory('empresarial')">
+                        <div class="card-brutal p-8 animate-reveal delay-3" data-category="empresarial" onclick="selectCategory('empresarial')">
                             <div class="number-giant">01</div>
                             <div class="relative z-10">
                                 <div class="text-xs tracking-[0.3em] text-white/30 mb-4">CATEGORY_01</div>
                                 <h3 class="font-archivo text-2xl mb-4">EMPRESARIAL</h3>
-                                <p class="text-white/40 text-sm leading-relaxed">
-                                    Organizational culture, work environment, productivity and employee engagement.
-                                </p>
+                                <p class="text-white/40 text-sm">Culture, productivity, engagement</p>
                             </div>
                         </div>
-                        
-                        <!-- Card 2 -->
-                        <div class="card-brutal p-8 animate-reveal delay-4 glitch-hover" 
-                             data-category="ventas"
-                             onclick="selectCategory('ventas')">
+                        <div class="card-brutal p-8 animate-reveal delay-4" data-category="ventas" onclick="selectCategory('ventas')">
                             <div class="number-giant">02</div>
                             <div class="relative z-10">
                                 <div class="text-xs tracking-[0.3em] text-white/30 mb-4">CATEGORY_02</div>
                                 <h3 class="font-archivo text-2xl mb-4">VENTAS</h3>
-                                <p class="text-white/40 text-sm leading-relaxed">
-                                    Conversion, commercial goals, incentives and competition between sellers.
-                                </p>
+                                <p class="text-white/40 text-sm">Goals, incentives, competition</p>
                             </div>
                         </div>
-                        
-                        <!-- Card 3 -->
-                        <div class="card-brutal p-8 animate-reveal delay-5 glitch-hover" 
-                             data-category="equipos"
-                             onclick="selectCategory('equipos')">
+                        <div class="card-brutal p-8 animate-reveal delay-5" data-category="equipos" onclick="selectCategory('equipos')">
                             <div class="number-giant">03</div>
                             <div class="relative z-10">
                                 <div class="text-xs tracking-[0.3em] text-white/30 mb-4">CATEGORY_03</div>
                                 <h3 class="font-archivo text-2xl mb-4">EQUIPOS</h3>
-                                <p class="text-white/40 text-sm leading-relaxed">
-                                    Team building, integration activities, cohesion and group dynamics.
-                                </p>
+                                <p class="text-white/40 text-sm">Team building, cohesion</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="mt-16 flex justify-end animate-reveal delay-6">
-                        <button class="btn-brutal" id="btnStep1" onclick="goToStep(2)" disabled>
-                            CONTINUE
-                        </button>
+                        <button class="btn-brutal" id="btnStep1" onclick="goToStep(2)" disabled>CONTINUE</button>
                     </div>
                 </div>
                 
-                <!-- STEP 2 -->
+                <!-- STEP 2: Bartle Test -->
                 <div id="step2" class="step step-hidden">
-                    <div class="text-vertical left-0 top-1/2 -translate-y-1/2 hidden lg:block">
-                        STEP 02 / DIAGNOSTIC
-                    </div>
+                    <h1 class="title-oversized title-outline glitch" data-text="PLAYER">PLAYER</h1>
+                    <h1 class="title-oversized title-orange glitch" data-text="PROFILE">PROFILE</h1>
+                    <p class="text-white/40 text-lg my-12 max-w-xl">Answer 6 quick questions to identify your team's player profile based on Bartle's Taxonomy.</p>
                     
-                    <div class="overflow-hidden mb-4">
-                        <h1 class="title-oversized title-outline" id="step2Title">
-                            DIAGNOSTIC
-                        </h1>
-                    </div>
-                    <div class="overflow-hidden mb-12">
-                        <h1 class="title-oversized title-orange" id="categoryTitle">
-                            EMPRESARIAL
-                        </h1>
-                    </div>
-                    
-                    <p class="text-white/40 text-lg mb-16 max-w-xl">
-                        Answer the following questions to personalize your gamification plan.
-                    </p>
-                    
-                    <div id="questionsContainer" class="space-y-8">
-                        <!-- Questions injected here -->
-                    </div>
+                    <div id="bartleContainer" class="space-y-8"></div>
                     
                     <div class="mt-16 flex justify-between">
-                        <button class="btn-ghost" onclick="goToStep(1)">
-                            BACK
-                        </button>
-                        <button class="btn-brutal" id="btnStep2" onclick="goToStep(3)" disabled>
-                            GENERATE PLAN
-                        </button>
+                        <button class="btn-ghost" onclick="goToStep(1)">BACK</button>
+                        <button class="btn-brutal" id="btnStep2" onclick="goToStep(3)" disabled>SEE PROFILE</button>
                     </div>
                 </div>
                 
-                <!-- STEP 3 -->
+                <!-- STEP 3: Profile Results + Radar -->
                 <div id="step3" class="step step-hidden">
-                    <div class="text-vertical left-0 top-1/2 -translate-y-1/2 hidden lg:block">
-                        STEP 03 / RESULTS
+                    <h1 class="title-oversized title-outline glitch" data-text="TEAM">TEAM</h1>
+                    <h1 class="title-oversized title-orange glitch" data-text="PROFILE">PROFILE</h1>
+                    
+                    <div class="grid md:grid-cols-2 gap-12 my-12">
+                        <!-- Radar Chart -->
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="radar-container">
+                                <div class="radar-bg"></div>
+                                <div class="radar-line h"></div>
+                                <div class="radar-line v"></div>
+                                <svg class="radar-shape" viewBox="0 0 300 300" id="radarShape">
+                                    <polygon points="150,150 150,150 150,150 150,150" fill="rgba(244,83,37,0.2)" stroke="#F45325" stroke-width="2" id="radarPolygon"/>
+                                </svg>
+                                <div class="radar-point bg-achiever" id="pointAchiever" style="top:50%;left:50%;"></div>
+                                <div class="radar-point bg-explorer" id="pointExplorer" style="top:50%;left:50%;"></div>
+                                <div class="radar-point bg-socializer" id="pointSocializer" style="top:50%;left:50%;"></div>
+                                <div class="radar-point bg-killer" id="pointKiller" style="top:50%;left:50%;"></div>
+                                <div class="radar-label text-achiever" style="top:5%;left:50%;">ACHIEVER</div>
+                                <div class="radar-label text-explorer" style="top:50%;left:95%;">EXPLORER</div>
+                                <div class="radar-label text-socializer" style="top:95%;left:50%;">SOCIALIZER</div>
+                                <div class="radar-label text-killer" style="top:50%;left:5%;">KILLER</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile Description -->
+                        <div>
+                            <div class="mb-6">
+                                <div class="text-xs tracking-[0.3em] text-white/30 mb-2">DOMINANT PROFILE</div>
+                                <div class="font-archivo text-4xl" id="dominantProfile">ACHIEVER</div>
+                            </div>
+                            <div class="space-y-4 mb-8" id="profileScores"></div>
+                            <div class="border-l-4 border-cta-orange pl-6">
+                                <p class="text-white/60" id="profileDescription">Your team is motivated by goals, achievements and visible progress. They thrive with points, badges, leaderboards and clear milestones.</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="overflow-hidden mb-4">
-                        <h1 class="title-oversized title-outline">
-                            YOUR
-                        </h1>
+                    <div class="mt-12 flex justify-between">
+                        <button class="btn-ghost" onclick="goToStep(2)">RETAKE TEST</button>
+                        <button class="btn-brutal" onclick="goToStep(4)">CONTINUE TO DIAGNOSTIC</button>
                     </div>
-                    <div class="overflow-hidden mb-12">
-                        <h1 class="title-oversized title-orange glitch" data-text="PLAN">
-                            PLAN
-                        </h1>
-                    </div>
+                </div>
+                
+                <!-- STEP 4: Diagnostic Questions -->
+                <div id="step4" class="step step-hidden">
+                    <h1 class="title-oversized title-outline">DIAGNOSTIC</h1>
+                    <h1 class="title-oversized title-orange" id="categoryTitle">EMPRESARIAL</h1>
+                    <p class="text-white/40 text-lg my-12 max-w-xl">Answer the following questions to personalize your gamification plan.</p>
                     
-                    <div id="resultsContainer" class="space-y-8">
-                        <!-- Results injected here -->
-                    </div>
+                    <div id="questionsContainer" class="space-y-8"></div>
                     
                     <div class="mt-16 flex justify-between">
-                        <button class="btn-ghost" onclick="goToStep(2)">
-                            MODIFY
-                        </button>
-                        <button class="btn-brutal" onclick="downloadPlan()">
-                            DOWNLOAD PDF
-                        </button>
+                        <button class="btn-ghost" onclick="goToStep(3)">BACK</button>
+                        <button class="btn-brutal" id="btnStep4" onclick="goToStep(5)" disabled>GENERATE PLAN</button>
+                    </div>
+                </div>
+                
+                <!-- STEP 5: Results -->
+                <div id="step5" class="step step-hidden">
+                    <h1 class="title-oversized title-outline">YOUR</h1>
+                    <h1 class="title-oversized title-orange glitch" data-text="PLAN">PLAN</h1>
+                    
+                    <div id="resultsContainer" class="space-y-8 mt-12"></div>
+                    
+                    <div class="mt-16 flex justify-between">
+                        <button class="btn-ghost" onclick="goToStep(4)">MODIFY</button>
+                        <button class="btn-brutal" onclick="downloadPlan()">DOWNLOAD PDF</button>
                     </div>
                 </div>
                 
             </div>
         </main>
         
-        <!-- Footer Marquee -->
-        <div class="marquee-container">
-            <div class="marquee" style="animation-direction: reverse;">
-                <div class="marquee-content">
-                    <span class="marquee-item">CTA+ <span>//</span></span>
-                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
-                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
-                    <span class="marquee-item">CTA+ <span>//</span></span>
-                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
-                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
-                </div>
-                <div class="marquee-content">
-                    <span class="marquee-item">CTA+ <span>//</span></span>
-                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
-                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
-                    <span class="marquee-item">CTA+ <span>//</span></span>
-                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
-                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
-                </div>
-            </div>
-        </div>
-        
         <!-- Footer -->
         <footer class="border-t-2 border-white/10 p-6">
             <div class="max-w-7xl mx-auto flex items-center justify-between text-xs tracking-wider text-white/20">
                 <span>2024 CTA+</span>
-                <span>GAMIFICATION PROTOCOL V3.0</span>
+                <span>GAMIFICATION PROTOCOL V4.0</span>
             </div>
         </footer>
     </div>
 
     <script>
-        // =====================
-        // LOADING SCREEN
-        // =====================
-        let loadingProgress = 0;
-        const loadingCounter = document.getElementById('loadingCounter');
-        const loadingBarFill = document.getElementById('loadingBarFill');
-        const loadingScreen = document.getElementById('loadingScreen');
-        
-        function updateLoading() {
-            if (loadingProgress < 100) {
-                loadingProgress += Math.random() * 15;
-                if (loadingProgress > 100) loadingProgress = 100;
-                loadingCounter.textContent = Math.floor(loadingProgress);
-                loadingBarFill.style.width = loadingProgress + '%';
-                setTimeout(updateLoading, 100 + Math.random() * 200);
+        // Loading
+        let loadProg = 0;
+        function updateLoad() {
+            if (loadProg < 100) {
+                loadProg += Math.random() * 15;
+                if (loadProg > 100) loadProg = 100;
+                document.getElementById('loadingCounter').textContent = Math.floor(loadProg);
+                document.getElementById('loadingBarFill').style.width = loadProg + '%';
+                setTimeout(updateLoad, 100 + Math.random() * 200);
             } else {
-                setTimeout(() => {
-                    loadingScreen.classList.add('hidden');
-                }, 500);
+                setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 500);
             }
         }
+        setTimeout(updateLoad, 500);
         
-        setTimeout(updateLoading, 500);
-        
-        // =====================
-        // CUSTOM CURSOR
-        // =====================
+        // Cursor
         const cursorMain = document.getElementById('cursorMain');
         const cursorDot = document.getElementById('cursorDot');
-        let mouseX = 0, mouseY = 0;
-        let cursorX = 0, cursorY = 0;
-        let dotX = 0, dotY = 0;
-        
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-        });
-        
-        document.addEventListener('mousedown', () => {
-            cursorDot.classList.add('clicking');
-        });
-        
-        document.addEventListener('mouseup', () => {
-            cursorDot.classList.remove('clicking');
-        });
-        
-        function animateCursor() {
-            cursorX += (mouseX - cursorX) * 0.15;
-            cursorY += (mouseY - cursorY) * 0.15;
-            dotX += (mouseX - dotX) * 0.3;
-            dotY += (mouseY - dotY) * 0.3;
-            
-            cursorMain.style.left = cursorX - 10 + 'px';
-            cursorMain.style.top = cursorY - 10 + 'px';
-            cursorDot.style.left = dotX - 4 + 'px';
-            cursorDot.style.top = dotY - 4 + 'px';
-            
-            requestAnimationFrame(animateCursor);
+        let mX = 0, mY = 0, cX = 0, cY = 0, dX = 0, dY = 0;
+        document.addEventListener('mousemove', e => { mX = e.clientX; mY = e.clientY; document.getElementById('coords').textContent = `X:${mX} Y:${mY}`; });
+        document.addEventListener('mousedown', () => cursorDot.classList.add('clicking'));
+        document.addEventListener('mouseup', () => cursorDot.classList.remove('clicking'));
+        function animCursor() {
+            cX += (mX - cX) * 0.15; cY += (mY - cY) * 0.15;
+            dX += (mX - dX) * 0.3; dY += (mY - dY) * 0.3;
+            cursorMain.style.left = cX - 10 + 'px'; cursorMain.style.top = cY - 10 + 'px';
+            cursorDot.style.left = dX - 4 + 'px'; cursorDot.style.top = dY - 4 + 'px';
+            requestAnimationFrame(animCursor);
         }
-        animateCursor();
+        animCursor();
         
-        // =====================
-        // GRID COORDS UPDATE
-        // =====================
-        document.addEventListener('mousemove', (e) => {
-            document.querySelector('.grid-coords.top-left').textContent = 
-                `X:${e.clientX} Y:${e.clientY}`;
-        });
+        // Data
+        const bartleQuestions = [
+            { q: "What motivates your team most?", options: [
+                { text: "Completing goals and earning rewards", type: "achiever" },
+                { text: "Learning new things and exploring", type: "explorer" },
+                { text: "Collaborating and helping others", type: "socializer" },
+                { text: "Competing and winning against others", type: "killer" }
+            ]},
+            { q: "In a game, your team would prefer to...", options: [
+                { text: "Unlock all achievements and badges", type: "achiever" },
+                { text: "Discover hidden areas and secrets", type: "explorer" },
+                { text: "Chat and make friends with other players", type: "socializer" },
+                { text: "Climb the leaderboard and beat rivals", type: "killer" }
+            ]},
+            { q: "The best reward for your team is...", options: [
+                { text: "Points, badges, and visible progress", type: "achiever" },
+                { text: "Access to new content or knowledge", type: "explorer" },
+                { text: "Recognition from peers and team events", type: "socializer" },
+                { text: "Prizes for top performers only", type: "killer" }
+            ]},
+            { q: "Your team feels successful when...", options: [
+                { text: "They complete all tasks on the list", type: "achiever" },
+                { text: "They learn something new every day", type: "explorer" },
+                { text: "Everyone is happy and connected", type: "socializer" },
+                { text: "They outperform other teams", type: "killer" }
+            ]},
+            { q: "In challenges, your team prefers...", options: [
+                { text: "Clear objectives with measurable goals", type: "achiever" },
+                { text: "Open-ended problems to figure out", type: "explorer" },
+                { text: "Team activities where everyone participates", type: "socializer" },
+                { text: "Head-to-head competitions", type: "killer" }
+            ]},
+            { q: "Your team's energy comes from...", options: [
+                { text: "Checking things off and leveling up", type: "achiever" },
+                { text: "Curiosity and new experiences", type: "explorer" },
+                { text: "Positive interactions and teamwork", type: "socializer" },
+                { text: "The thrill of winning", type: "killer" }
+            ]}
+        ];
         
-        // =====================
-        // DATA
-        // =====================
         const questions = {
             empresarial: [
-                { id: 'E1', question: 'How many employees will participate?', type: 'number', placeholder: 'e.g. 50' },
-                { id: 'E2', question: 'What is the main problem to solve?', type: 'single', options: ['High turnover', 'Low productivity', 'Bad work climate', 'Lack of commitment', 'Poor communication'] },
-                { id: 'E3', question: 'What behaviors do you want to incentivize?', type: 'multi', options: ['Punctuality', 'Collaboration', 'Initiative', 'Goal completion', 'Innovation', 'Continuous learning'] },
-                { id: 'E4', question: 'Do you have a budget for rewards?', type: 'single', options: ['No budget', '$1 - $500 USD', '$500 - $2,000 USD', 'More than $2,000 USD'] },
-                { id: 'E5', question: 'When do you expect measurable results?', type: 'single', options: ['1 month', '3 months', '6 months', '1 year'] }
+                { id: 'E1', q: 'How many employees?', type: 'number', ph: 'e.g. 50' },
+                { id: 'E2', q: 'Main problem?', type: 'single', opts: ['High turnover', 'Low productivity', 'Bad climate', 'Lack of commitment', 'Poor communication'] },
+                { id: 'E3', q: 'Behaviors to incentivize?', type: 'multi', opts: ['Punctuality', 'Collaboration', 'Initiative', 'Goal completion', 'Innovation', 'Learning'] },
+                { id: 'E4', q: 'Budget for rewards?', type: 'single', opts: ['No budget', '$1-$500', '$500-$2000', '+$2000'] },
+                { id: 'E5', q: 'Expected results timeline?', type: 'single', opts: ['1 month', '3 months', '6 months', '1 year'] }
             ],
             ventas: [
-                { id: 'V1', question: 'How many salespeople do you have?', type: 'number', placeholder: 'e.g. 15' },
-                { id: 'V2', question: 'What is your average ticket?', type: 'number', placeholder: 'e.g. 500' },
-                { id: 'V3', question: 'What % of monthly goal are you hitting?', type: 'single', options: ['Less than 25%', '25% - 50%', '50% - 75%', '75% - 100%', 'We exceed (+100%)'] },
-                { id: 'V4', question: 'How do you currently compensate?', type: 'multi', options: ['Fixed salary only', 'Commission per sale', 'Goal bonuses', 'Prizes in kind', 'Public recognition'] },
-                { id: 'V5', question: 'What metric do you want to improve?', type: 'single', options: ['Total sales volume', 'Average ticket', 'Customer retention', 'New customers', 'Upselling/Cross-selling'] },
-                { id: 'V6', question: 'Do your salespeople prefer competition or collaboration?', type: 'single', options: ['Individual competition', 'Team competition', 'Collaboration', 'Not sure'] }
+                { id: 'V1', q: 'How many salespeople?', type: 'number', ph: 'e.g. 15' },
+                { id: 'V2', q: 'Average ticket?', type: 'number', ph: 'e.g. 500' },
+                { id: 'V3', q: 'Monthly goal %?', type: 'single', opts: ['<25%', '25-50%', '50-75%', '75-100%', '+100%'] },
+                { id: 'V4', q: 'Current compensation?', type: 'multi', opts: ['Fixed salary', 'Commission', 'Bonuses', 'Prizes', 'Recognition'] },
+                { id: 'V5', q: 'Metric to improve?', type: 'single', opts: ['Volume', 'Ticket size', 'Retention', 'New clients', 'Upselling'] },
+                { id: 'V6', q: 'Compete or collaborate?', type: 'single', opts: ['Individual competition', 'Team competition', 'Collaboration', 'Not sure'] }
             ],
             equipos: [
-                { id: 'Q1', question: 'How many people will participate?', type: 'number', placeholder: 'e.g. 30' },
-                { id: 'Q2', question: 'Single event or ongoing program?', type: 'single', options: ['Single event', 'Monthly program', 'Quarterly program', 'Annual program'] },
-                { id: 'Q3', question: 'In-person, virtual or hybrid?', type: 'single', options: ['In-person', 'Virtual', 'Hybrid'] },
-                { id: 'Q4', question: 'What is the main objective?', type: 'single', options: ['Integrate new members', 'Improve communication', 'Resolve conflicts', 'Celebrate achievements', 'Fun and disconnect'] },
-                { id: 'Q5', question: 'How much time do you have?', type: 'single', options: ['2 hours', 'Half day (4h)', 'Full day (8h)', 'Multiple days'] }
+                { id: 'Q1', q: 'How many people?', type: 'number', ph: 'e.g. 30' },
+                { id: 'Q2', q: 'Event type?', type: 'single', opts: ['Single event', 'Monthly', 'Quarterly', 'Annual'] },
+                { id: 'Q3', q: 'Format?', type: 'single', opts: ['In-person', 'Virtual', 'Hybrid'] },
+                { id: 'Q4', q: 'Main objective?', type: 'single', opts: ['Integration', 'Communication', 'Conflict resolution', 'Celebration', 'Fun'] },
+                { id: 'Q5', q: 'Time available?', type: 'single', opts: ['2 hours', '4 hours', 'Full day', 'Multiple days'] }
             ]
         };
         
+        const profileDescriptions = {
+            achiever: "Your team is motivated by goals, achievements and visible progress. They thrive with points, badges, leaderboards and clear milestones.",
+            explorer: "Your team loves discovery, learning and finding new ways to do things. They're energized by challenges, easter eggs and knowledge unlocks.",
+            socializer: "Your team values connection, collaboration and helping each other. They perform best with team challenges, recognition and social features.",
+            killer: "Your team is driven by competition and winning. They excel with leaderboards, tournaments, rankings and head-to-head challenges."
+        };
+        
         let selectedCategory = null;
+        let bartleAnswers = [];
+        let bartleScores = { achiever: 0, explorer: 0, socializer: 0, killer: 0 };
         let answers = {};
         
-        // =====================
-        // FUNCTIONS
-        // =====================
-        function selectCategory(category) {
-            selectedCategory = category;
-            
-            document.querySelectorAll('.card-brutal').forEach(card => {
-                card.classList.remove('selected');
-            });
-            document.querySelector(`[data-category="${category}"]`).classList.add('selected');
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            document.querySelectorAll('.card-brutal').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[data-category="${cat}"]`).classList.add('selected');
             document.getElementById('btnStep1').disabled = false;
         }
         
         function goToStep(step) {
             const wipe = document.getElementById('transitionWipe');
-            
-            // Wipe in
             wipe.classList.add('active');
             
             setTimeout(() => {
-                // Hide all steps
                 document.querySelectorAll('.step').forEach(s => s.classList.add('step-hidden'));
-                
-                // Show target step
                 document.getElementById(`step${step}`).classList.remove('step-hidden');
+                document.getElementById('progressBar').style.width = `${(step / 5) * 100}%`;
                 
-                // Update progress
-                document.getElementById('progressBar').style.width = `${(step / 3) * 100}%`;
+                if (step === 2) renderBartle();
+                if (step === 3) renderProfile();
+                if (step === 4) renderQuestions();
+                if (step === 5) generateResults();
                 
-                // Step-specific
-                if (step === 2) renderQuestions();
-                if (step === 3) generateResults();
-                
-                // Wipe out
                 wipe.classList.remove('active');
                 wipe.classList.add('exit');
-                
-                setTimeout(() => {
-                    wipe.classList.remove('exit');
-                }, 500);
-                
+                setTimeout(() => wipe.classList.remove('exit'), 500);
                 window.scrollTo({ top: 0, behavior: 'instant' });
-                
             }, 500);
+        }
+        
+        function renderBartle() {
+            const container = document.getElementById('bartleContainer');
+            bartleAnswers = [];
+            bartleScores = { achiever: 0, explorer: 0, socializer: 0, killer: 0 };
+            
+            let html = '';
+            bartleQuestions.forEach((bq, i) => {
+                html += `
+                    <div class="border-3 border-white/10 p-8 animate-reveal delay-${i+1}" style="border-width:3px;">
+                        <div class="flex items-start gap-6 mb-6">
+                            <span class="font-archivo text-4xl text-cta-orange">${String(i+1).padStart(2,'0')}</span>
+                            <h3 class="text-xl font-medium pt-2">${bq.q}</h3>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4 ml-16">
+                            ${bq.options.map(opt => `
+                                <button class="bartle-option" data-type="${opt.type}" data-q="${i}" onclick="selectBartle(${i}, '${opt.type}', this)">
+                                    ${opt.text}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            updateBartleBtn();
+        }
+        
+        function selectBartle(qIndex, type, el) {
+            el.parentElement.querySelectorAll('.bartle-option').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            bartleAnswers[qIndex] = type;
+            updateBartleBtn();
+        }
+        
+        function updateBartleBtn() {
+            const answered = bartleAnswers.filter(a => a).length;
+            document.getElementById('btnStep2').disabled = answered < bartleQuestions.length;
+        }
+        
+        function renderProfile() {
+            // Calculate scores
+            bartleScores = { achiever: 0, explorer: 0, socializer: 0, killer: 0 };
+            bartleAnswers.forEach(type => {
+                if (type) bartleScores[type]++;
+            });
+            
+            // Find dominant
+            const total = bartleQuestions.length;
+            const dominant = Object.entries(bartleScores).sort((a,b) => b[1] - a[1])[0][0];
+            
+            // Update UI
+            document.getElementById('dominantProfile').textContent = dominant.toUpperCase();
+            document.getElementById('dominantProfile').className = `font-archivo text-4xl text-${dominant}`;
+            document.getElementById('profileDescription').textContent = profileDescriptions[dominant];
+            
+            // Scores display
+            const scoresHtml = Object.entries(bartleScores).map(([type, score]) => {
+                const pct = Math.round((score / total) * 100);
+                return `
+                    <div class="flex items-center gap-4">
+                        <span class="profile-badge ${type}">${type.toUpperCase()}</span>
+                        <div class="flex-1 h-2 bg-white/10">
+                            <div class="h-full bg-${type}" style="width:${pct}%"></div>
+                        </div>
+                        <span class="font-archivo text-xl">${pct}%</span>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('profileScores').innerHTML = scoresHtml;
+            
+            // Animate radar
+            setTimeout(() => animateRadar(), 300);
+        }
+        
+        function animateRadar() {
+            const total = bartleQuestions.length;
+            const maxRadius = 130; // Max distance from center
+            const center = 150;
+            
+            // Calculate positions (top, right, bottom, left)
+            const achieverR = (bartleScores.achiever / total) * maxRadius;
+            const explorerR = (bartleScores.explorer / total) * maxRadius;
+            const socializerR = (bartleScores.socializer / total) * maxRadius;
+            const killerR = (bartleScores.killer / total) * maxRadius;
+            
+            // Points: top (achiever), right (explorer), bottom (socializer), left (killer)
+            document.getElementById('pointAchiever').style.top = `${((center - achieverR) / 300) * 100}%`;
+            document.getElementById('pointAchiever').style.left = '50%';
+            
+            document.getElementById('pointExplorer').style.top = '50%';
+            document.getElementById('pointExplorer').style.left = `${((center + explorerR) / 300) * 100}%`;
+            
+            document.getElementById('pointSocializer').style.top = `${((center + socializerR) / 300) * 100}%`;
+            document.getElementById('pointSocializer').style.left = '50%';
+            
+            document.getElementById('pointKiller').style.top = '50%';
+            document.getElementById('pointKiller').style.left = `${((center - killerR) / 300) * 100}%`;
+            
+            // Polygon
+            const points = `${center},${center - achieverR} ${center + explorerR},${center} ${center},${center + socializerR} ${center - killerR},${center}`;
+            document.getElementById('radarPolygon').setAttribute('points', points);
         }
         
         function renderQuestions() {
             const container = document.getElementById('questionsContainer');
-            const categoryQuestions = questions[selectedCategory];
-            
+            const qs = questions[selectedCategory];
             const titles = { empresarial: 'EMPRESARIAL', ventas: 'VENTAS', equipos: 'EQUIPOS' };
             document.getElementById('categoryTitle').textContent = titles[selectedCategory];
             
             let html = '';
-            categoryQuestions.forEach((q, i) => {
+            qs.forEach((q, i) => {
                 html += `
-                    <div class="border-brutal p-8 animate-reveal delay-${i + 1}">
+                    <div class="border-3 border-white/10 p-8 animate-reveal delay-${i+1}" style="border-width:3px;">
                         <div class="flex items-start gap-6 mb-6">
-                            <span class="font-archivo text-4xl text-cta-orange">${String(i + 1).padStart(2, '0')}</span>
-                            <h3 class="text-xl font-medium pt-2">${q.question}</h3>
+                            <span class="font-archivo text-4xl text-cta-orange">${String(i+1).padStart(2,'0')}</span>
+                            <h3 class="text-xl font-medium pt-2">${q.q}</h3>
                         </div>
                         <div class="ml-16">${renderInput(q)}</div>
                     </div>
                 `;
             });
-            
             container.innerHTML = html;
             answers = {};
-            updateStep2Button();
+            updateStep4Btn();
         }
         
         function renderInput(q) {
             if (q.type === 'number') {
-                return `<input type="number" id="${q.id}" placeholder="${q.placeholder}" onchange="updateAnswer('${q.id}', this.value)">`;
+                return `<input type="number" id="${q.id}" placeholder="${q.ph}" onchange="updateAns('${q.id}', this.value)">`;
             } else if (q.type === 'single') {
-                return `<div class="grid md:grid-cols-2 gap-4">${q.options.map(opt => `
-                    <button class="option-brutal" onclick="selectOption('${q.id}', '${opt}', this)">${opt}</button>
-                `).join('')}</div>`;
+                return `<div class="grid md:grid-cols-2 gap-4">${q.opts.map(o => `<button class="option-brutal" onclick="selOpt('${q.id}','${o}',this)">${o}</button>`).join('')}</div>`;
             } else {
-                return `<div class="grid md:grid-cols-2 gap-4">${q.options.map(opt => `
-                    <button class="option-brutal" onclick="toggleMulti('${q.id}', '${opt}', this)">${opt}</button>
-                `).join('')}</div><p class="text-white/30 text-sm mt-4">Select multiple options</p>`;
+                return `<div class="grid md:grid-cols-2 gap-4">${q.opts.map(o => `<button class="option-brutal" onclick="togMulti('${q.id}','${o}',this)">${o}</button>`).join('')}</div><p class="text-white/30 text-sm mt-4">Select multiple</p>`;
             }
         }
         
-        function updateAnswer(id, val) { answers[id] = val; updateStep2Button(); }
-        
-        function selectOption(id, val, el) {
+        function updateAns(id, v) { answers[id] = v; updateStep4Btn(); }
+        function selOpt(id, v, el) {
             el.parentElement.querySelectorAll('.option-brutal').forEach(b => b.classList.remove('selected'));
             el.classList.add('selected');
-            answers[id] = val;
-            updateStep2Button();
+            answers[id] = v;
+            updateStep4Btn();
         }
-        
-        function toggleMulti(id, val, el) {
+        function togMulti(id, v, el) {
             el.classList.toggle('selected');
             if (!answers[id]) answers[id] = [];
-            if (el.classList.contains('selected')) { answers[id].push(val); }
-            else { answers[id] = answers[id].filter(v => v !== val); }
-            updateStep2Button();
+            if (el.classList.contains('selected')) answers[id].push(v);
+            else answers[id] = answers[id].filter(x => x !== v);
+            updateStep4Btn();
         }
         
-        function updateStep2Button() {
+        function updateStep4Btn() {
             const req = questions[selectedCategory].length;
             const ans = Object.keys(answers).filter(k => answers[k] && (Array.isArray(answers[k]) ? answers[k].length > 0 : true)).length;
-            document.getElementById('btnStep2').disabled = ans < req;
+            document.getElementById('btnStep4').disabled = ans < req;
         }
         
         function generateResults() {
             const container = document.getElementById('resultsContainer');
-            const data = {
-                empresarial: { title: 'EMPRESARIAL', mechanics: getMechanics('empresarial') },
-                ventas: { title: 'VENTAS', mechanics: getMechanics('ventas') },
-                equipos: { title: 'EQUIPOS', mechanics: getMechanics('equipos') }
-            }[selectedCategory];
+            const dominant = Object.entries(bartleScores).sort((a,b) => b[1] - a[1])[0][0];
             
             container.innerHTML = `
+                <!-- Profile Summary -->
+                <div class="result-brutal" data-section="TEAM PROFILE">
+                    <div class="flex items-center gap-6 mb-6">
+                        <span class="profile-badge ${dominant}">${dominant.toUpperCase()}</span>
+                        <span class="text-white/40">Dominant player type</span>
+                    </div>
+                    <p class="text-white/60">${profileDescriptions[dominant]}</p>
+                </div>
+                
+                <!-- Metrics -->
                 <div class="result-brutal" data-section="SUMMARY">
                     <div class="grid md:grid-cols-3 gap-6">
                         <div class="border-l-4 border-cta-orange pl-6">
@@ -1238,18 +703,13 @@
                     </div>
                 </div>
                 
-                <div class="result-brutal" data-section="MECHANICS">
-                    <h3 class="font-archivo text-xl mb-6">RECOMMENDED MECHANICS</h3>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        ${data.mechanics.map(m => `
-                            <div class="border-2 border-white/10 p-4 hover:border-cta-orange transition-colors">
-                                <div class="font-bold mb-2">${m.name}</div>
-                                <div class="text-white/40 text-sm">${m.desc}</div>
-                            </div>
-                        `).join('')}
-                    </div>
+                <!-- Mechanics based on profile -->
+                <div class="result-brutal" data-section="RECOMMENDED MECHANICS">
+                    <h3 class="font-archivo text-xl mb-6">Based on <span class="text-${dominant}">${dominant.toUpperCase()}</span> profile</h3>
+                    <div class="grid md:grid-cols-2 gap-4">${getMechanicsForProfile(dominant)}</div>
                 </div>
                 
+                <!-- Points System -->
                 <div class="result-brutal" data-section="POINTS SYSTEM">
                     <h3 class="font-archivo text-xl mb-6">POINTS SYSTEM</h3>
                     <table class="table-brutal">
@@ -1258,17 +718,17 @@
                     </table>
                 </div>
                 
+                <!-- Rewards -->
                 <div class="result-brutal" data-section="REWARDS">
                     <h3 class="font-archivo text-xl mb-6">SUGGESTED REWARDS</h3>
-                    <div class="space-y-3">${getRewards()}</div>
+                    <div class="space-y-3">${getRewards(dominant)}</div>
                 </div>
                 
-                <div class="border-brutal-orange p-12 text-center">
+                <!-- CTA -->
+                <div class="border-4 border-cta-orange p-12 text-center">
                     <h3 class="font-archivo text-3xl mb-4">READY TO IMPLEMENT?</h3>
                     <p class="text-white/40 mb-8">Schedule a session with our team to bring this plan to reality.</p>
-                    <a href="https://calltoactionplus.com" target="_blank" class="btn-brutal inline-block">
-                        CONTACT CTA+
-                    </a>
+                    <a href="https://calltoactionplus.com" target="_blank" class="btn-brutal inline-block">CONTACT CTA+</a>
                 </div>
             `;
             
@@ -1279,54 +739,65 @@
             }, 300);
         }
         
-        function getParticipants() {
-            return answers['E1'] || answers['V1'] || answers['Q1'] || 'N/A';
-        }
+        function getParticipants() { return answers['E1'] || answers['V1'] || answers['Q1'] || 'N/A'; }
+        function getDuration() { return answers['E5'] || answers['Q5'] || '3M'; }
+        function getComplexity() { const p = parseInt(getParticipants()) || 0; return p < 20 ? 'LOW' : p < 50 ? 'MED' : 'HIGH'; }
         
-        function getDuration() {
-            return answers['E5'] || answers['Q5'] || '3M';
-        }
-        
-        function getComplexity() {
-            const p = parseInt(getParticipants()) || 0;
-            return p < 20 ? 'LOW' : p < 50 ? 'MED' : 'HIGH';
-        }
-        
-        function getMechanics(cat) {
-            const base = {
-                empresarial: [
-                    { name: 'Points System', desc: 'Daily accumulation for positive actions' },
-                    { name: 'Employee Levels', desc: 'Visible progression with level benefits' },
-                    { name: 'Public Recognition', desc: 'Highlight achievements in internal channels' }
+        function getMechanicsForProfile(profile) {
+            const mechanics = {
+                achiever: [
+                    { name: 'Points System', desc: 'Clear point accumulation for every action' },
+                    { name: 'Badge Collection', desc: 'Unlockable achievements for milestones' },
+                    { name: 'Progress Bars', desc: 'Visual completion tracking' },
+                    { name: 'Levels & XP', desc: 'Clear progression path with rewards' }
                 ],
-                ventas: [
-                    { name: 'Real-time Leaderboard', desc: 'Daily updated seller ranking' },
-                    { name: 'Achievement Badges', desc: 'Insignias for reached goals' },
-                    { name: 'Multipliers', desc: 'Point bonus for consecutive sales' }
+                explorer: [
+                    { name: 'Easter Eggs', desc: 'Hidden rewards for curious team members' },
+                    { name: 'Knowledge Unlocks', desc: 'New content as rewards' },
+                    { name: 'Mystery Challenges', desc: 'Open-ended problem solving' },
+                    { name: 'Discovery Quests', desc: 'Exploration-based missions' }
                 ],
-                equipos: [
-                    { name: 'Thematic Narrative', desc: 'Engaging story for activities' },
-                    { name: 'Collaborative Challenges', desc: 'Team-required missions' },
-                    { name: 'Team Competition', desc: 'Group division with standings' }
+                socializer: [
+                    { name: 'Team Challenges', desc: 'Group missions with shared rewards' },
+                    { name: 'Peer Recognition', desc: 'Give kudos to colleagues' },
+                    { name: 'Collaboration Bonuses', desc: 'Extra points for helping others' },
+                    { name: 'Social Events', desc: 'Team activities and celebrations' }
+                ],
+                killer: [
+                    { name: 'Leaderboards', desc: 'Real-time competitive rankings' },
+                    { name: 'Tournaments', desc: 'Weekly/monthly competitions' },
+                    { name: 'Head-to-Head', desc: 'Direct challenges between members' },
+                    { name: 'Winner Takes All', desc: 'Premium rewards for top performers' }
                 ]
             };
-            return base[cat];
+            
+            return mechanics[profile].map(m => `
+                <div class="border-2 border-white/10 p-4 hover:border-${profile} transition-colors">
+                    <div class="font-bold mb-2">${m.name}</div>
+                    <div class="text-white/40 text-sm">${m.desc}</div>
+                </div>
+            `).join('');
         }
         
         function getPointsTable() {
             const tables = {
-                empresarial: [['On time arrival', 10], ['Complete daily task', 25], ['Help colleague', 15], ['Propose improvement', 100]],
+                empresarial: [['On time arrival', 10], ['Complete task', 25], ['Help colleague', 15], ['Propose improvement', 100]],
                 ventas: [['Call made', 5], ['Meeting scheduled', 20], ['Proposal sent', 30], ['Sale closed', 100]],
-                equipos: [['Participate in activity', 10], ['Complete group challenge', 50], ['Win competition', 100]]
+                equipos: [['Participate', 10], ['Complete challenge', 50], ['Win competition', 100]]
             };
             return (tables[selectedCategory] || tables.empresarial).map(([a, p]) => 
                 `<tr><td>${a}</td><td class="text-right"><span class="points-value">+${p}</span></td></tr>`
             ).join('');
         }
         
-        function getRewards() {
-            const rewards = ['Public recognition', 'Extra day off', 'Flexible schedule', 'Lunch with CEO', 'Gift vouchers'];
-            return rewards.map(r => `
+        function getRewards(profile) {
+            const rewards = {
+                achiever: ['Exclusive badges', 'Premium status', 'Extra day off', 'Gift vouchers', 'Certificate of achievement'],
+                explorer: ['Learning courses', 'Conference tickets', 'Book allowance', 'Innovation lab access', 'Mentorship sessions'],
+                socializer: ['Team dinner', 'Group outing', 'Public recognition', 'Team party budget', 'Social event hosting'],
+                killer: ['Top performer trophy', 'Championship belt', 'Premium parking spot', 'Executive lunch', 'Winner jacket']
+            };
+            return rewards[profile].map(r => `
                 <div class="flex items-center gap-4 border-2 border-white/10 p-4 hover:border-cta-orange hover:translate-x-2 transition-all">
                     <span class="text-cta-orange font-archivo">+</span>
                     <span>${r}</span>
@@ -1334,9 +805,7 @@
             `).join('');
         }
         
-        function downloadPlan() {
-            alert('PDF download coming soon. Contact CTA+ for your complete plan.');
-        }
+        function downloadPlan() { alert('PDF download coming soon. Contact CTA+ for your complete plan.'); }
     </script>
 </body>
 </html>
