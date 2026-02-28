@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CTA+ Gamification Wizard</title>
+    <title>CTA+ GAMIFICATION WIZARD</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,6 +33,7 @@
     <style>
         * {
             border-radius: 0 !important;
+            cursor: none !important;
         }
         
         body {
@@ -47,10 +48,546 @@
         }
         
         /* =====================
-           CINEMATIC ANIMATIONS
+           CUSTOM CURSOR
            ===================== */
+        .cursor-main {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 99999;
+            mix-blend-mode: difference;
+        }
         
-        /* Page transitions */
+        .cursor-main::before,
+        .cursor-main::after {
+            content: '';
+            position: absolute;
+            background: #fff;
+        }
+        
+        .cursor-main::before {
+            width: 20px;
+            height: 2px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        
+        .cursor-main::after {
+            width: 2px;
+            height: 20px;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+        
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: #F45325;
+            pointer-events: none;
+            z-index: 99998;
+            transition: transform 0.1s ease;
+        }
+        
+        .cursor-dot.clicking {
+            transform: scale(3);
+            opacity: 0.5;
+        }
+        
+        /* =====================
+           LOADING SCREEN
+           ===================== */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loading-text {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 0.5em;
+            color: #F45325;
+            animation: loadingPulse 0.5s ease infinite alternate;
+        }
+        
+        .loading-counter {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 15vw;
+            color: #fff;
+            line-height: 1;
+        }
+        
+        .loading-bar {
+            width: 200px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        
+        .loading-bar-fill {
+            height: 100%;
+            background: #F45325;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        @keyframes loadingPulse {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+        
+        /* =====================
+           NOISE TEXTURE
+           ===================== */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+        
+        /* Scanlines */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            opacity: 0.3;
+        }
+        
+        /* =====================
+           GRID OVERLAY
+           ===================== */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            background-image: 
+                linear-gradient(rgba(244, 83, 37, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(244, 83, 37, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .grid-coords {
+            position: fixed;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: rgba(244, 83, 37, 0.3);
+            z-index: 2;
+            letter-spacing: 0.1em;
+        }
+        
+        .grid-coords.top-left { top: 10px; left: 10px; }
+        .grid-coords.top-right { top: 10px; right: 10px; }
+        .grid-coords.bottom-left { bottom: 10px; left: 10px; }
+        .grid-coords.bottom-right { bottom: 10px; right: 10px; }
+        
+        /* =====================
+           MARQUEE
+           ===================== */
+        .marquee-container {
+            overflow: hidden;
+            border-top: 2px solid rgba(255,255,255,0.1);
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding: 1rem 0;
+            background: rgba(244, 83, 37, 0.05);
+        }
+        
+        .marquee {
+            display: flex;
+            animation: marquee 20s linear infinite;
+        }
+        
+        .marquee-content {
+            display: flex;
+            flex-shrink: 0;
+        }
+        
+        .marquee-item {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.5);
+            white-space: nowrap;
+            padding: 0 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+        
+        .marquee-item span {
+            color: #F45325;
+        }
+        
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        
+        /* =====================
+           OVERSIZED TYPOGRAPHY
+           ===================== */
+        .title-oversized {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: clamp(4rem, 20vw, 15rem);
+            line-height: 0.85;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+        }
+        
+        .title-outline {
+            -webkit-text-stroke: 2px #fff;
+            color: transparent;
+        }
+        
+        .title-orange {
+            color: #F45325;
+        }
+        
+        .text-vertical {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            position: absolute;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            color: rgba(255,255,255,0.2);
+        }
+        
+        /* =====================
+           GLITCH EFFECT
+           ===================== */
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .glitch::before {
+            color: #0ff;
+            animation: glitch-1 0.3s infinite linear alternate-reverse;
+            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+        }
+        
+        .glitch::after {
+            color: #f0f;
+            animation: glitch-2 0.3s infinite linear alternate-reverse;
+            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+        }
+        
+        @keyframes glitch-1 {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-3px); }
+            40% { transform: translateX(3px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes glitch-2 {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(3px); }
+            40% { transform: translateX(-3px); }
+            60% { transform: translateX(3px); }
+            80% { transform: translateX(-3px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .glitch-hover:hover {
+            animation: glitchFlicker 0.3s steps(2) infinite;
+        }
+        
+        @keyframes glitchFlicker {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        /* =====================
+           BRUTAL BORDERS
+           ===================== */
+        .border-brutal {
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+        
+        .border-brutal-orange {
+            border: 3px solid #F45325;
+        }
+        
+        /* =====================
+           ASYMMETRIC CARDS
+           ===================== */
+        .card-brutal {
+            position: relative;
+            border: 3px solid rgba(255,255,255,0.2);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .card-brutal::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(244, 83, 37, 0.3);
+            z-index: -1;
+            transition: all 0.3s ease;
+        }
+        
+        .card-brutal:hover {
+            border-color: #F45325;
+            transform: translate(-5px, -5px);
+        }
+        
+        .card-brutal:hover::before {
+            top: 10px;
+            right: -20px;
+            border-color: #F45325;
+        }
+        
+        .card-brutal.selected {
+            border-color: #F45325;
+            background: rgba(244, 83, 37, 0.1);
+        }
+        
+        /* =====================
+           CATEGORY NUMBERS
+           ===================== */
+        .number-giant {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 8rem;
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(255,255,255,0.1);
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            z-index: 0;
+            transition: all 0.4s ease;
+        }
+        
+        .card-brutal:hover .number-giant {
+            -webkit-text-stroke-color: rgba(244, 83, 37, 0.3);
+            transform: scale(1.1);
+        }
+        
+        /* =====================
+           BUTTONS
+           ===================== */
+        .btn-brutal {
+            position: relative;
+            background: #F45325;
+            color: #fff;
+            padding: 1.5rem 3rem;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            border: 3px solid #F45325;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .btn-brutal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-brutal:hover::before {
+            left: 100%;
+        }
+        
+        .btn-brutal:hover {
+            background: transparent;
+            color: #F45325;
+            transform: skewX(-5deg);
+        }
+        
+        .btn-brutal:disabled {
+            opacity: 0.3;
+            transform: none;
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            color: #fff;
+            padding: 1.5rem 3rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-ghost:hover {
+            border-color: #fff;
+            transform: skewX(5deg);
+        }
+        
+        /* =====================
+           OPTION BUTTONS
+           ===================== */
+        .option-brutal {
+            position: relative;
+            border: 2px solid rgba(255,255,255,0.1);
+            padding: 1.25rem;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+        
+        .option-brutal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: #F45325;
+            transition: height 0.3s ease;
+        }
+        
+        .option-brutal:hover {
+            border-color: rgba(244, 83, 37, 0.5);
+            padding-left: 2rem;
+        }
+        
+        .option-brutal:hover::before {
+            height: 100%;
+        }
+        
+        .option-brutal.selected {
+            border-color: #F45325;
+            background: rgba(244, 83, 37, 0.15);
+            padding-left: 2rem;
+        }
+        
+        .option-brutal.selected::before {
+            height: 100%;
+        }
+        
+        .option-brutal.selected::after {
+            content: '+';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.5rem;
+            color: #F45325;
+        }
+        
+        /* =====================
+           INPUTS
+           ===================== */
+        input[type="number"],
+        input[type="text"] {
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 2rem;
+            padding: 1rem 0;
+            width: 100%;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            border-bottom-color: #F45325;
+        }
+        
+        input::placeholder {
+            color: rgba(255,255,255,0.2);
+        }
+        
+        /* =====================
+           PROGRESS
+           ===================== */
+        .progress-brutal {
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-brutal-fill {
+            height: 100%;
+            background: #F45325;
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        
+        .progress-brutal-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -10px;
+            width: 3px;
+            height: 24px;
+            background: #F45325;
+            animation: progressPulse 1s ease infinite;
+        }
+        
+        @keyframes progressPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* =====================
+           STEP TRANSITIONS
+           ===================== */
         .step {
             position: relative;
         }
@@ -59,647 +596,375 @@
             display: none;
         }
         
-        /* Cinematic entrance - main content */
-        @keyframes cinematicReveal {
-            0% {
-                opacity: 0;
-                transform: translateY(60px) scale(0.98);
-                filter: blur(10px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-                filter: blur(0);
-            }
-        }
-        
-        /* Staggered fade up for elements */
-        @keyframes staggerUp {
-            0% {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Slide in from sides */
-        @keyframes slideInLeft {
-            0% {
-                opacity: 0;
-                transform: translateX(-100px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        @keyframes slideInRight {
-            0% {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        /* Scale pop */
-        @keyframes scalePop {
-            0% {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            50% {
-                transform: scale(1.02);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        /* Glitch effect for titles */
-        @keyframes glitchReveal {
-            0% {
-                opacity: 0;
-                transform: translateX(-20px);
-                clip-path: inset(0 100% 0 0);
-            }
-            50% {
-                clip-path: inset(0 0 0 0);
-            }
-            100% {
-                opacity: 1;
-                transform: translateX(0);
-                clip-path: inset(0 0 0 0);
-            }
-        }
-        
-        /* Pulse glow */
-        @keyframes pulseGlow {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(244, 83, 37, 0);
-            }
-            50% {
-                box-shadow: 0 0 30px 5px rgba(244, 83, 37, 0.3);
-            }
-        }
-        
-        /* Number counter spin */
-        @keyframes counterSpin {
-            0% {
-                opacity: 0;
-                transform: rotateX(90deg);
-            }
-            100% {
-                opacity: 1;
-                transform: rotateX(0);
-            }
-        }
-        
-        /* Line draw */
-        @keyframes lineDraw {
-            0% {
-                width: 0;
-            }
-            100% {
-                width: 100%;
-            }
-        }
-        
-        /* Apply animations */
-        .animate-cinematic {
-            animation: cinematicReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .animate-stagger {
-            opacity: 0;
-            animation: staggerUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .animate-slide-left {
-            animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .animate-slide-right {
-            animation: slideInRight 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .animate-scale-pop {
-            animation: scalePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        
-        .animate-glitch {
-            animation: glitchReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        .animate-counter {
-            animation: counterSpin 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            transform-origin: center bottom;
-        }
-        
-        /* Hover effects with spring physics */
-        .category-card {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            cursor: pointer;
-            transform-origin: center;
-        }
-        
-        .category-card:hover {
-            border-color: #F45325;
-            background-color: rgba(244, 83, 37, 0.1);
-            transform: translateY(-8px) scale(1.02);
-        }
-        
-        .category-card:hover .card-number {
-            transform: scale(1.1);
-            color: #F45325;
-        }
-        
-        .category-card.selected {
-            border-color: #F45325;
-            background-color: rgba(244, 83, 37, 0.15);
-            animation: pulseGlow 2s ease-in-out infinite;
-        }
-        
-        .card-number {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        /* Option buttons with micro-interactions */
-        .option-btn {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .option-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(244, 83, 37, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .option-btn:hover::before {
-            left: 100%;
-        }
-        
-        .option-btn:hover {
-            border-color: #F45325;
-            transform: translateX(8px);
-        }
-        
-        .option-btn.selected {
-            border-color: #F45325;
-            background-color: rgba(244, 83, 37, 0.2);
-            transform: translateX(8px);
-        }
-        
-        .option-btn.selected::after {
-            content: '+';
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #F45325;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-        
-        /* Multi-select with check animation */
-        .multi-option {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-        }
-        
-        .multi-option:hover {
-            border-color: rgba(244, 83, 37, 0.5);
-            transform: scale(1.02);
-        }
-        
-        .multi-option.selected {
-            border-color: #F45325;
-            background-color: rgba(244, 83, 37, 0.2);
-            transform: scale(1.02);
-        }
-        
-        .multi-option.selected::before {
-            content: '';
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 20px;
-            height: 20px;
-            background: #F45325;
-            clip-path: polygon(20% 40%, 40% 60%, 80% 20%, 90% 30%, 40% 80%, 10% 50%);
-            animation: scalePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        /* Input styling with focus glow */
-        input[type="number"],
-        input[type="text"],
-        textarea {
-            background-color: #1A1A2E;
-            border: 1px solid rgba(255,255,255,0.125);
-            color: #ffffff;
-            padding: 12px 16px;
-            width: 100%;
-            outline: none;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        input:focus,
-        textarea:focus {
-            border-color: #F45325;
-            box-shadow: 0 0 20px rgba(244, 83, 37, 0.2);
-            transform: scale(1.01);
-        }
-        
-        /* Progress bar with smooth fill */
-        .progress-container {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-        
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 30px;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
-            animation: shimmer 1.5s ease-in-out infinite;
-        }
-        
-        @keyframes shimmer {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-        
-        /* CTA Button with liquid effect */
-        .btn-cta {
-            background-color: #F45325;
-            color: #ffffff;
-            padding: 16px 32px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: 1px solid #F45325;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-cta::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(0,0,0,0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-        }
-        
-        .btn-cta:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-        
-        .btn-cta:hover {
-            transform: translateY(-4px) scale(1.05);
-            box-shadow: 0 10px 30px rgba(244, 83, 37, 0.4);
-        }
-        
-        .btn-cta:active {
-            transform: translateY(-2px) scale(1.02);
-        }
-        
-        .btn-cta:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .btn-cta:disabled:hover::before {
-            width: 0;
-            height: 0;
-        }
-        
-        .btn-cta span {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .btn-secondary {
-            background-color: transparent;
-            color: #ffffff;
-            padding: 16px 32px;
-            font-weight: 500;
-            border: 1px solid rgba(255,255,255,0.125);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            cursor: pointer;
-        }
-        
-        .btn-secondary:hover {
-            border-color: #ffffff;
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Decorative lines */
-        .line-reveal {
-            height: 1px;
-            background: linear-gradient(90deg, #F45325, transparent);
-            animation: lineDraw 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        /* Background parallax */
-        .bg-parallax {
-            transition: transform 0.1s ease-out;
-        }
-        
-        /* Result cards entrance */
-        .result-card {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        
-        .result-card.visible {
-            animation: staggerUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        /* Table row animations */
-        .table-row {
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-        
-        .table-row.visible {
-            animation: slideInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        /* Floating particles (subtle) */
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: #F45325;
-            opacity: 0.3;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        
-        /* Cursor follower glow */
-        .cursor-glow {
-            position: fixed;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(244, 83, 37, 0.1) 0%, transparent 70%);
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            transition: opacity 0.3s ease;
-        }
-        
-        /* Step transition overlay */
-        .transition-overlay {
+        .transition-wipe {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .transition-overlay.active {
-            opacity: 1;
-        }
-        
-        /* Title split animation */
-        .split-text span {
-            display: inline-block;
-            opacity: 0;
+            background: #F45325;
+            z-index: 9999;
             transform: translateY(100%);
-            animation: splitReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1);
         }
         
-        @keyframes splitReveal {
+        .transition-wipe.active {
+            transform: translateY(0);
+        }
+        
+        .transition-wipe.exit {
+            transform: translateY(-100%);
+        }
+        
+        /* =====================
+           ANIMATIONS
+           ===================== */
+        @keyframes revealUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px) skewY(5deg);
+            }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) skewY(0);
             }
         }
         
-        /* Question card entrance */
-        .question-card {
-            opacity: 0;
-            transform: translateY(40px) scale(0.98);
+        @keyframes revealLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         
-        .question-card.visible {
-            animation: cinematicReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .animate-reveal {
+            opacity: 0;
+            animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-reveal-left {
+            opacity: 0;
+            animation: revealLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Stagger delays */
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+        .delay-6 { animation-delay: 0.6s; }
+        .delay-7 { animation-delay: 0.7s; }
+        .delay-8 { animation-delay: 0.8s; }
+        
+        /* =====================
+           RESULT CARDS
+           ===================== */
+        .result-brutal {
+            border: 3px solid rgba(255,255,255,0.1);
+            padding: 2rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .result-brutal.visible {
+            animation: revealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .result-brutal::before {
+            content: attr(data-section);
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #000;
+            padding: 0 10px;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: #F45325;
+            text-transform: uppercase;
+        }
+        
+        /* =====================
+           TABLE
+           ===================== */
+        .table-brutal {
+            width: 100%;
+        }
+        
+        .table-brutal th {
+            text-align: left;
+            padding: 1rem 0;
+            border-bottom: 3px solid rgba(255,255,255,0.1);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .table-brutal td {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .table-brutal tr:hover td {
+            color: #F45325;
+        }
+        
+        .points-value {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 1.25rem;
+            color: #F45325;
+        }
+        
+        /* =====================
+           RESPONSIVE
+           ===================== */
+        @media (max-width: 768px) {
+            .title-oversized {
+                font-size: clamp(3rem, 15vw, 8rem);
+            }
+            
+            .number-giant {
+                font-size: 5rem;
+            }
+            
+            .marquee-item {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen">
-    <!-- Cursor glow effect -->
-    <div class="cursor-glow" id="cursorGlow"></div>
-    
-    <!-- Transition overlay -->
-    <div class="transition-overlay" id="transitionOverlay"></div>
-    
-    <!-- Background -->
-    <div class="fixed inset-0 z-0 bg-parallax" id="bgParallax">
-        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" 
-             alt="Background" 
-             class="w-full h-full object-cover opacity-20">
-        <div class="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black"></div>
-        
-        <!-- Floating particles -->
-        <div class="particle" style="top: 20%; left: 10%;"></div>
-        <div class="particle" style="top: 60%; left: 80%; animation-delay: 1s;"></div>
-        <div class="particle" style="top: 40%; left: 50%; animation-delay: 2s;"></div>
-        <div class="particle" style="top: 80%; left: 30%; animation-delay: 3s;"></div>
-        <div class="particle" style="top: 10%; left: 70%; animation-delay: 4s;"></div>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-text">INITIALIZING GAMIFICATION PROTOCOL</div>
+        <div class="loading-counter" id="loadingCounter">0</div>
+        <div class="loading-bar">
+            <div class="loading-bar-fill" id="loadingBarFill"></div>
+        </div>
     </div>
     
-    <!-- Content -->
+    <!-- Custom Cursor -->
+    <div class="cursor-main" id="cursorMain"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+    
+    <!-- Transition Wipe -->
+    <div class="transition-wipe" id="transitionWipe"></div>
+    
+    <!-- Noise & Scanlines -->
+    <div class="noise"></div>
+    <div class="scanlines"></div>
+    
+    <!-- Grid Overlay -->
+    <div class="grid-overlay"></div>
+    <div class="grid-coords top-left">X:0 Y:0</div>
+    <div class="grid-coords top-right">X:1920 Y:0</div>
+    <div class="grid-coords bottom-left">X:0 Y:1080</div>
+    <div class="grid-coords bottom-right">CTA+ PROTOCOL V3.0</div>
+    
+    <!-- Background -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=2072" 
+             alt="" 
+             class="w-full h-full object-cover opacity-10">
+    </div>
+    
+    <!-- Main Content -->
     <div class="relative z-10 min-h-screen flex flex-col">
+        
         <!-- Header -->
-        <header class="border-b border-cta-border p-6">
-            <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <header class="border-b-2 border-white/10 p-6">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <img src="https://calltoactionplus.com/wp-content/uploads/2024/01/logo-cta-plus-white.png" 
                      alt="CTA+" 
-                     class="h-8 animate-slide-left">
-                <div class="text-sm text-gray-400 animate-slide-right">
+                     class="h-6 animate-reveal-left">
+                <div class="text-xs tracking-[0.3em] text-white/30 animate-reveal delay-2">
                     GAMIFICATION WIZARD
                 </div>
             </div>
         </header>
         
-        <!-- Progress Bar -->
-        <div class="border-b border-cta-border">
-            <div class="max-w-6xl mx-auto px-6 py-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm text-gray-400">Progreso</span>
-                    <span class="text-sm text-gray-400" id="stepIndicator">Paso 1 de 3</span>
+        <!-- Progress -->
+        <div class="progress-brutal">
+            <div class="progress-brutal-fill" id="progressBar" style="width: 33%"></div>
+        </div>
+        
+        <!-- Marquee -->
+        <div class="marquee-container">
+            <div class="marquee">
+                <div class="marquee-content">
+                    <span class="marquee-item">GAMIFICATION <span>+</span></span>
+                    <span class="marquee-item">STRATEGY <span>+</span></span>
+                    <span class="marquee-item">RESULTS <span>+</span></span>
+                    <span class="marquee-item">ENGAGEMENT <span>+</span></span>
+                    <span class="marquee-item">PERFORMANCE <span>+</span></span>
+                    <span class="marquee-item">GAMIFICATION <span>+</span></span>
+                    <span class="marquee-item">STRATEGY <span>+</span></span>
+                    <span class="marquee-item">RESULTS <span>+</span></span>
+                    <span class="marquee-item">ENGAGEMENT <span>+</span></span>
+                    <span class="marquee-item">PERFORMANCE <span>+</span></span>
                 </div>
-                <div class="h-1 bg-cta-dark w-full progress-container">
-                    <div class="h-full bg-cta-orange progress-fill" id="progressBar" style="width: 33%"></div>
+                <div class="marquee-content">
+                    <span class="marquee-item">GAMIFICATION <span>+</span></span>
+                    <span class="marquee-item">STRATEGY <span>+</span></span>
+                    <span class="marquee-item">RESULTS <span>+</span></span>
+                    <span class="marquee-item">ENGAGEMENT <span>+</span></span>
+                    <span class="marquee-item">PERFORMANCE <span>+</span></span>
+                    <span class="marquee-item">GAMIFICATION <span>+</span></span>
+                    <span class="marquee-item">STRATEGY <span>+</span></span>
+                    <span class="marquee-item">RESULTS <span>+</span></span>
+                    <span class="marquee-item">ENGAGEMENT <span>+</span></span>
+                    <span class="marquee-item">PERFORMANCE <span>+</span></span>
                 </div>
             </div>
         </div>
         
-        <!-- Main Content -->
-        <main class="flex-1 py-12 px-6">
-            <div class="max-w-4xl mx-auto">
+        <!-- Main -->
+        <main class="flex-1 py-16 px-6">
+            <div class="max-w-6xl mx-auto">
                 
-                <!-- STEP 1: Category Selection -->
+                <!-- STEP 1 -->
                 <div id="step1" class="step">
+                    <!-- Vertical text -->
+                    <div class="text-vertical left-0 top-1/2 -translate-y-1/2 hidden lg:block">
+                        STEP 01 / SELECT
+                    </div>
+                    
+                    <!-- Oversized Title -->
                     <div class="overflow-hidden mb-4">
-                        <h1 class="font-archivo text-4xl md:text-6xl animate-glitch">
-                            SELECCIONA TU
+                        <h1 class="title-oversized title-outline animate-reveal glitch" data-text="SELECT">
+                            SELECT
                         </h1>
                     </div>
-                    <div class="overflow-hidden mb-4">
-                        <h1 class="font-archivo text-4xl md:text-6xl text-cta-orange animate-glitch" style="animation-delay: 0.1s">
-                            CATEGORIA
+                    <div class="overflow-hidden mb-12">
+                        <h1 class="title-oversized title-orange animate-reveal delay-1 glitch" data-text="CATEGORY">
+                            CATEGORY
                         </h1>
                     </div>
-                    <div class="line-reveal mb-8" style="animation-delay: 0.3s"></div>
-                    <p class="text-gray-400 text-lg mb-12 max-w-xl animate-stagger" style="animation-delay: 0.4s">
-                        Elige el tipo de gamificacion que mejor se adapta a las necesidades de tu empresa.
+                    
+                    <p class="text-white/40 text-lg mb-16 max-w-xl animate-reveal delay-2">
+                        Choose the gamification type that best fits your company's needs.
                     </p>
                     
-                    <div class="grid md:grid-cols-3 gap-6">
-                        <!-- Empresarial -->
-                        <div class="category-card border border-cta-border p-8 animate-stagger" 
-                             style="animation-delay: 0.5s"
+                    <!-- Category Cards -->
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <!-- Card 1 -->
+                        <div class="card-brutal p-8 animate-reveal delay-3 glitch-hover" 
                              data-category="empresarial"
                              onclick="selectCategory('empresarial')">
-                            <div class="card-number text-5xl mb-6 font-archivo">01</div>
-                            <h3 class="font-archivo text-xl mb-3">EMPRESARIAL</h3>
-                            <p class="text-gray-400 text-sm">
-                                Cultura organizacional, clima laboral, productividad y engagement de empleados.
-                            </p>
+                            <div class="number-giant">01</div>
+                            <div class="relative z-10">
+                                <div class="text-xs tracking-[0.3em] text-white/30 mb-4">CATEGORY_01</div>
+                                <h3 class="font-archivo text-2xl mb-4">EMPRESARIAL</h3>
+                                <p class="text-white/40 text-sm leading-relaxed">
+                                    Organizational culture, work environment, productivity and employee engagement.
+                                </p>
+                            </div>
                         </div>
                         
-                        <!-- Ventas -->
-                        <div class="category-card border border-cta-border p-8 animate-stagger" 
-                             style="animation-delay: 0.6s"
+                        <!-- Card 2 -->
+                        <div class="card-brutal p-8 animate-reveal delay-4 glitch-hover" 
                              data-category="ventas"
                              onclick="selectCategory('ventas')">
-                            <div class="card-number text-5xl mb-6 font-archivo">02</div>
-                            <h3 class="font-archivo text-xl mb-3">VENTAS</h3>
-                            <p class="text-gray-400 text-sm">
-                                Conversion, metas comerciales, incentivos y competencia entre vendedores.
-                            </p>
+                            <div class="number-giant">02</div>
+                            <div class="relative z-10">
+                                <div class="text-xs tracking-[0.3em] text-white/30 mb-4">CATEGORY_02</div>
+                                <h3 class="font-archivo text-2xl mb-4">VENTAS</h3>
+                                <p class="text-white/40 text-sm leading-relaxed">
+                                    Conversion, commercial goals, incentives and competition between sellers.
+                                </p>
+                            </div>
                         </div>
                         
-                        <!-- Equipos -->
-                        <div class="category-card border border-cta-border p-8 animate-stagger" 
-                             style="animation-delay: 0.7s"
+                        <!-- Card 3 -->
+                        <div class="card-brutal p-8 animate-reveal delay-5 glitch-hover" 
                              data-category="equipos"
                              onclick="selectCategory('equipos')">
-                            <div class="card-number text-5xl mb-6 font-archivo">03</div>
-                            <h3 class="font-archivo text-xl mb-3">EQUIPOS</h3>
-                            <p class="text-gray-400 text-sm">
-                                Team building, actividades de integracion, cohesion y dinamicas grupales.
-                            </p>
+                            <div class="number-giant">03</div>
+                            <div class="relative z-10">
+                                <div class="text-xs tracking-[0.3em] text-white/30 mb-4">CATEGORY_03</div>
+                                <h3 class="font-archivo text-2xl mb-4">EQUIPOS</h3>
+                                <p class="text-white/40 text-sm leading-relaxed">
+                                    Team building, integration activities, cohesion and group dynamics.
+                                </p>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="mt-12 flex justify-end animate-stagger" style="animation-delay: 0.8s">
-                        <button class="btn-cta" id="btnStep1" onclick="goToStep(2)" disabled>
-                            <span>CONTINUAR</span>
+                    <div class="mt-16 flex justify-end animate-reveal delay-6">
+                        <button class="btn-brutal" id="btnStep1" onclick="goToStep(2)" disabled>
+                            CONTINUE
                         </button>
                     </div>
                 </div>
                 
-                <!-- STEP 2: Questions -->
+                <!-- STEP 2 -->
                 <div id="step2" class="step step-hidden">
+                    <div class="text-vertical left-0 top-1/2 -translate-y-1/2 hidden lg:block">
+                        STEP 02 / DIAGNOSTIC
+                    </div>
+                    
                     <div class="overflow-hidden mb-4">
-                        <h1 class="font-archivo text-4xl md:text-5xl" id="step2Title1">
-                            DIAGNOSTICO
+                        <h1 class="title-oversized title-outline" id="step2Title">
+                            DIAGNOSTIC
                         </h1>
                     </div>
-                    <div class="overflow-hidden mb-4">
-                        <h1 class="font-archivo text-4xl md:text-5xl text-cta-orange" id="categoryTitle">
+                    <div class="overflow-hidden mb-12">
+                        <h1 class="title-oversized title-orange" id="categoryTitle">
                             EMPRESARIAL
                         </h1>
                     </div>
-                    <div class="line-reveal mb-8"></div>
-                    <p class="text-gray-400 text-lg mb-12">
-                        Responde las siguientes preguntas para personalizar tu plan de gamificacion.
+                    
+                    <p class="text-white/40 text-lg mb-16 max-w-xl">
+                        Answer the following questions to personalize your gamification plan.
                     </p>
                     
-                    <!-- Questions Container -->
                     <div id="questionsContainer" class="space-y-8">
-                        <!-- Questions will be injected here -->
+                        <!-- Questions injected here -->
                     </div>
                     
-                    <div class="mt-12 flex justify-between">
-                        <button class="btn-secondary" onclick="goToStep(1)">
-                            ATRAS
+                    <div class="mt-16 flex justify-between">
+                        <button class="btn-ghost" onclick="goToStep(1)">
+                            BACK
                         </button>
-                        <button class="btn-cta" id="btnStep2" onclick="goToStep(3)" disabled>
-                            <span>GENERAR PLAN</span>
+                        <button class="btn-brutal" id="btnStep2" onclick="goToStep(3)" disabled>
+                            GENERATE PLAN
                         </button>
                     </div>
                 </div>
                 
-                <!-- STEP 3: Results -->
+                <!-- STEP 3 -->
                 <div id="step3" class="step step-hidden">
-                    <div class="overflow-hidden mb-4">
-                        <h1 class="font-archivo text-4xl md:text-5xl" id="step3Title1">
-                            TU PLAN
-                        </h1>
-                    </div>
-                    <div class="overflow-hidden mb-4">
-                        <h1 class="font-archivo text-4xl md:text-5xl text-cta-orange" id="step3Title2">
-                            GAMIFICADO
-                        </h1>
-                    </div>
-                    <div class="line-reveal mb-8"></div>
-                    
-                    <div id="resultsContainer" class="space-y-8 mt-12">
-                        <!-- Results will be injected here -->
+                    <div class="text-vertical left-0 top-1/2 -translate-y-1/2 hidden lg:block">
+                        STEP 03 / RESULTS
                     </div>
                     
-                    <div class="mt-12 flex justify-between">
-                        <button class="btn-secondary" onclick="goToStep(2)">
-                            MODIFICAR RESPUESTAS
+                    <div class="overflow-hidden mb-4">
+                        <h1 class="title-oversized title-outline">
+                            YOUR
+                        </h1>
+                    </div>
+                    <div class="overflow-hidden mb-12">
+                        <h1 class="title-oversized title-orange glitch" data-text="PLAN">
+                            PLAN
+                        </h1>
+                    </div>
+                    
+                    <div id="resultsContainer" class="space-y-8">
+                        <!-- Results injected here -->
+                    </div>
+                    
+                    <div class="mt-16 flex justify-between">
+                        <button class="btn-ghost" onclick="goToStep(2)">
+                            MODIFY
                         </button>
-                        <button class="btn-cta" onclick="downloadPlan()">
-                            <span>DESCARGAR PDF</span>
+                        <button class="btn-brutal" onclick="downloadPlan()">
+                            DOWNLOAD PDF
                         </button>
                     </div>
                 </div>
@@ -707,741 +972,370 @@
             </div>
         </main>
         
+        <!-- Footer Marquee -->
+        <div class="marquee-container">
+            <div class="marquee" style="animation-direction: reverse;">
+                <div class="marquee-content">
+                    <span class="marquee-item">CTA+ <span>//</span></span>
+                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
+                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
+                    <span class="marquee-item">CTA+ <span>//</span></span>
+                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
+                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
+                </div>
+                <div class="marquee-content">
+                    <span class="marquee-item">CTA+ <span>//</span></span>
+                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
+                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
+                    <span class="marquee-item">CTA+ <span>//</span></span>
+                    <span class="marquee-item">CALL TO ACTION PLUS <span>//</span></span>
+                    <span class="marquee-item">GAMIFICATION EXPERTS <span>//</span></span>
+                </div>
+            </div>
+        </div>
+        
         <!-- Footer -->
-        <footer class="border-t border-cta-border p-6">
-            <div class="max-w-6xl mx-auto text-center text-gray-500 text-sm">
-                CTA+ GAMIFICATION WIZARD - Powered by Call To Action Plus
+        <footer class="border-t-2 border-white/10 p-6">
+            <div class="max-w-7xl mx-auto flex items-center justify-between text-xs tracking-wider text-white/20">
+                <span>2024 CTA+</span>
+                <span>GAMIFICATION PROTOCOL V3.0</span>
             </div>
         </footer>
     </div>
-    
+
     <script>
         // =====================
-        // CURSOR GLOW EFFECT
+        // LOADING SCREEN
         // =====================
-        const cursorGlow = document.getElementById('cursorGlow');
+        let loadingProgress = 0;
+        const loadingCounter = document.getElementById('loadingCounter');
+        const loadingBarFill = document.getElementById('loadingBarFill');
+        const loadingScreen = document.getElementById('loadingScreen');
+        
+        function updateLoading() {
+            if (loadingProgress < 100) {
+                loadingProgress += Math.random() * 15;
+                if (loadingProgress > 100) loadingProgress = 100;
+                loadingCounter.textContent = Math.floor(loadingProgress);
+                loadingBarFill.style.width = loadingProgress + '%';
+                setTimeout(updateLoading, 100 + Math.random() * 200);
+            } else {
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                }, 500);
+            }
+        }
+        
+        setTimeout(updateLoading, 500);
+        
+        // =====================
+        // CUSTOM CURSOR
+        // =====================
+        const cursorMain = document.getElementById('cursorMain');
+        const cursorDot = document.getElementById('cursorDot');
         let mouseX = 0, mouseY = 0;
-        let glowX = 0, glowY = 0;
+        let cursorX = 0, cursorY = 0;
+        let dotX = 0, dotY = 0;
         
         document.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
         });
         
+        document.addEventListener('mousedown', () => {
+            cursorDot.classList.add('clicking');
+        });
+        
+        document.addEventListener('mouseup', () => {
+            cursorDot.classList.remove('clicking');
+        });
+        
         function animateCursor() {
-            glowX += (mouseX - glowX) * 0.1;
-            glowY += (mouseY - glowY) * 0.1;
-            cursorGlow.style.left = glowX + 'px';
-            cursorGlow.style.top = glowY + 'px';
+            cursorX += (mouseX - cursorX) * 0.15;
+            cursorY += (mouseY - cursorY) * 0.15;
+            dotX += (mouseX - dotX) * 0.3;
+            dotY += (mouseY - dotY) * 0.3;
+            
+            cursorMain.style.left = cursorX - 10 + 'px';
+            cursorMain.style.top = cursorY - 10 + 'px';
+            cursorDot.style.left = dotX - 4 + 'px';
+            cursorDot.style.top = dotY - 4 + 'px';
+            
             requestAnimationFrame(animateCursor);
         }
         animateCursor();
         
         // =====================
-        // PARALLAX BACKGROUND
+        // GRID COORDS UPDATE
         // =====================
-        const bgParallax = document.getElementById('bgParallax');
-        
         document.addEventListener('mousemove', (e) => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 20;
-            const y = (e.clientY / window.innerHeight - 0.5) * 20;
-            bgParallax.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+            document.querySelector('.grid-coords.top-left').textContent = 
+                `X:${e.clientX} Y:${e.clientY}`;
         });
         
         // =====================
-        // DATA: Questions
+        // DATA
         // =====================
         const questions = {
             empresarial: [
-                {
-                    id: 'E1',
-                    question: 'Cuantos empleados participaran en el programa?',
-                    type: 'number',
-                    placeholder: 'Ej: 50'
-                },
-                {
-                    id: 'E2',
-                    question: 'Cual es el problema principal que quieren resolver?',
-                    type: 'single',
-                    options: [
-                        'Rotacion alta de personal',
-                        'Baja productividad',
-                        'Mal clima laboral',
-                        'Falta de compromiso',
-                        'Comunicacion deficiente'
-                    ]
-                },
-                {
-                    id: 'E3',
-                    question: 'Que comportamientos quieren incentivar?',
-                    type: 'multi',
-                    options: [
-                        'Puntualidad',
-                        'Colaboracion',
-                        'Iniciativa propia',
-                        'Cumplimiento de metas',
-                        'Innovacion',
-                        'Capacitacion continua'
-                    ]
-                },
-                {
-                    id: 'E4',
-                    question: 'Tienen presupuesto asignado para recompensas?',
-                    type: 'single',
-                    options: [
-                        'Sin presupuesto definido',
-                        '$1 - $500.000 COP',
-                        '$500.000 - $2.000.000 COP',
-                        'Mas de $2.000.000 COP'
-                    ]
-                },
-                {
-                    id: 'E5',
-                    question: 'En cuanto tiempo esperan ver resultados medibles?',
-                    type: 'single',
-                    options: [
-                        '1 mes',
-                        '3 meses',
-                        '6 meses',
-                        '1 ano'
-                    ]
-                }
+                { id: 'E1', question: 'How many employees will participate?', type: 'number', placeholder: 'e.g. 50' },
+                { id: 'E2', question: 'What is the main problem to solve?', type: 'single', options: ['High turnover', 'Low productivity', 'Bad work climate', 'Lack of commitment', 'Poor communication'] },
+                { id: 'E3', question: 'What behaviors do you want to incentivize?', type: 'multi', options: ['Punctuality', 'Collaboration', 'Initiative', 'Goal completion', 'Innovation', 'Continuous learning'] },
+                { id: 'E4', question: 'Do you have a budget for rewards?', type: 'single', options: ['No budget', '$1 - $500 USD', '$500 - $2,000 USD', 'More than $2,000 USD'] },
+                { id: 'E5', question: 'When do you expect measurable results?', type: 'single', options: ['1 month', '3 months', '6 months', '1 year'] }
             ],
             ventas: [
-                {
-                    id: 'V1',
-                    question: 'Cuantos vendedores o agentes comerciales tienen?',
-                    type: 'number',
-                    placeholder: 'Ej: 15'
-                },
-                {
-                    id: 'V2',
-                    question: 'Cual es su ticket promedio de venta?',
-                    type: 'number',
-                    placeholder: 'Ej: 500000',
-                    prefix: '$'
-                },
-                {
-                    id: 'V3',
-                    question: 'Que porcentaje de la meta mensual estan cumpliendo?',
-                    type: 'single',
-                    options: [
-                        'Menos del 25%',
-                        '25% - 50%',
-                        '50% - 75%',
-                        '75% - 100%',
-                        'Superamos la meta (+100%)'
-                    ]
-                },
-                {
-                    id: 'V4',
-                    question: 'Como compensan actualmente a los vendedores?',
-                    type: 'multi',
-                    options: [
-                        'Salario fijo unicamente',
-                        'Comision por cada venta',
-                        'Bonos por cumplir meta',
-                        'Premios en especie',
-                        'Reconocimiento publico'
-                    ]
-                },
-                {
-                    id: 'V5',
-                    question: 'Que metrica quieren mejorar principalmente?',
-                    type: 'single',
-                    options: [
-                        'Volumen total de ventas',
-                        'Ticket promedio',
-                        'Retencion de clientes',
-                        'Adquisicion de nuevos clientes',
-                        'Upselling / Cross-selling'
-                    ]
-                },
-                {
-                    id: 'V6',
-                    question: 'Sus vendedores prefieren competir o colaborar?',
-                    type: 'single',
-                    options: [
-                        'Competencia individual',
-                        'Competencia por equipos',
-                        'Colaboracion y metas grupales',
-                        'No estoy seguro'
-                    ]
-                }
+                { id: 'V1', question: 'How many salespeople do you have?', type: 'number', placeholder: 'e.g. 15' },
+                { id: 'V2', question: 'What is your average ticket?', type: 'number', placeholder: 'e.g. 500' },
+                { id: 'V3', question: 'What % of monthly goal are you hitting?', type: 'single', options: ['Less than 25%', '25% - 50%', '50% - 75%', '75% - 100%', 'We exceed (+100%)'] },
+                { id: 'V4', question: 'How do you currently compensate?', type: 'multi', options: ['Fixed salary only', 'Commission per sale', 'Goal bonuses', 'Prizes in kind', 'Public recognition'] },
+                { id: 'V5', question: 'What metric do you want to improve?', type: 'single', options: ['Total sales volume', 'Average ticket', 'Customer retention', 'New customers', 'Upselling/Cross-selling'] },
+                { id: 'V6', question: 'Do your salespeople prefer competition or collaboration?', type: 'single', options: ['Individual competition', 'Team competition', 'Collaboration', 'Not sure'] }
             ],
             equipos: [
-                {
-                    id: 'Q1',
-                    question: 'Cuantas personas participaran?',
-                    type: 'number',
-                    placeholder: 'Ej: 30'
-                },
-                {
-                    id: 'Q2',
-                    question: 'Es un evento unico o un programa continuo?',
-                    type: 'single',
-                    options: [
-                        'Evento unico',
-                        'Programa mensual',
-                        'Programa trimestral',
-                        'Programa anual'
-                    ]
-                },
-                {
-                    id: 'Q3',
-                    question: 'La actividad sera presencial, virtual o hibrida?',
-                    type: 'single',
-                    options: [
-                        'Presencial',
-                        'Virtual',
-                        'Hibrida'
-                    ]
-                },
-                {
-                    id: 'Q4',
-                    question: 'Cual es el objetivo principal?',
-                    type: 'single',
-                    options: [
-                        'Integrar nuevos miembros',
-                        'Mejorar comunicacion',
-                        'Resolver conflictos internos',
-                        'Celebrar logros del equipo',
-                        'Diversion y desconexion'
-                    ]
-                },
-                {
-                    id: 'Q5',
-                    question: 'Cuanto tiempo tienen disponible?',
-                    type: 'single',
-                    options: [
-                        '2 horas',
-                        'Medio dia (4 horas)',
-                        'Dia completo (8 horas)',
-                        'Multiples dias'
-                    ]
-                }
+                { id: 'Q1', question: 'How many people will participate?', type: 'number', placeholder: 'e.g. 30' },
+                { id: 'Q2', question: 'Single event or ongoing program?', type: 'single', options: ['Single event', 'Monthly program', 'Quarterly program', 'Annual program'] },
+                { id: 'Q3', question: 'In-person, virtual or hybrid?', type: 'single', options: ['In-person', 'Virtual', 'Hybrid'] },
+                { id: 'Q4', question: 'What is the main objective?', type: 'single', options: ['Integrate new members', 'Improve communication', 'Resolve conflicts', 'Celebrate achievements', 'Fun and disconnect'] },
+                { id: 'Q5', question: 'How much time do you have?', type: 'single', options: ['2 hours', 'Half day (4h)', 'Full day (8h)', 'Multiple days'] }
             ]
         };
         
-        // =====================
-        // STATE
-        // =====================
         let selectedCategory = null;
         let answers = {};
         
         // =====================
         // FUNCTIONS
         // =====================
-        
         function selectCategory(category) {
             selectedCategory = category;
             
-            // Update UI with animation
-            document.querySelectorAll('.category-card').forEach(card => {
+            document.querySelectorAll('.card-brutal').forEach(card => {
                 card.classList.remove('selected');
             });
-            
-            const selectedCard = document.querySelector(`[data-category="${category}"]`);
-            selectedCard.classList.add('selected');
-            
-            // Enable continue button with animation
-            const btn = document.getElementById('btnStep1');
-            btn.disabled = false;
-            btn.classList.add('animate-scale-pop');
-            setTimeout(() => btn.classList.remove('animate-scale-pop'), 500);
+            document.querySelector(`[data-category="${category}"]`).classList.add('selected');
+            document.getElementById('btnStep1').disabled = false;
         }
         
         function goToStep(step) {
-            const overlay = document.getElementById('transitionOverlay');
+            const wipe = document.getElementById('transitionWipe');
             
-            // Fade out
-            overlay.classList.add('active');
+            // Wipe in
+            wipe.classList.add('active');
             
             setTimeout(() => {
                 // Hide all steps
-                document.querySelectorAll('.step').forEach(s => {
-                    s.classList.add('step-hidden');
-                });
+                document.querySelectorAll('.step').forEach(s => s.classList.add('step-hidden'));
                 
                 // Show target step
-                const targetStep = document.getElementById(`step${step}`);
-                targetStep.classList.remove('step-hidden');
+                document.getElementById(`step${step}`).classList.remove('step-hidden');
                 
                 // Update progress
-                const progress = (step / 3) * 100;
-                document.getElementById('progressBar').style.width = `${progress}%`;
-                document.getElementById('stepIndicator').textContent = `Paso ${step} de 3`;
+                document.getElementById('progressBar').style.width = `${(step / 3) * 100}%`;
                 
-                // Step-specific logic
-                if (step === 2) {
-                    renderQuestions();
-                } else if (step === 3) {
-                    generateResults();
-                }
+                // Step-specific
+                if (step === 2) renderQuestions();
+                if (step === 3) generateResults();
                 
-                // Scroll to top
+                // Wipe out
+                wipe.classList.remove('active');
+                wipe.classList.add('exit');
+                
+                setTimeout(() => {
+                    wipe.classList.remove('exit');
+                }, 500);
+                
                 window.scrollTo({ top: 0, behavior: 'instant' });
                 
-                // Trigger entrance animations
-                triggerEntranceAnimations(step);
-                
-                // Fade in
-                setTimeout(() => {
-                    overlay.classList.remove('active');
-                }, 100);
-                
-            }, 300);
-        }
-        
-        function triggerEntranceAnimations(step) {
-            const stepEl = document.getElementById(`step${step}`);
-            
-            // Reset and trigger title animations
-            const titles = stepEl.querySelectorAll('h1');
-            titles.forEach((title, i) => {
-                title.style.animation = 'none';
-                title.offsetHeight; // Trigger reflow
-                title.style.animation = `glitchReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s forwards`;
-            });
-            
-            // Trigger line animations
-            const lines = stepEl.querySelectorAll('.line-reveal');
-            lines.forEach(line => {
-                line.style.animation = 'none';
-                line.offsetHeight;
-                line.style.animation = 'lineDraw 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards';
-            });
+            }, 500);
         }
         
         function renderQuestions() {
             const container = document.getElementById('questionsContainer');
             const categoryQuestions = questions[selectedCategory];
             
-            // Update title
-            const titles = {
-                empresarial: 'EMPRESARIAL',
-                ventas: 'VENTAS',
-                equipos: 'EQUIPOS'
-            };
+            const titles = { empresarial: 'EMPRESARIAL', ventas: 'VENTAS', equipos: 'EQUIPOS' };
             document.getElementById('categoryTitle').textContent = titles[selectedCategory];
             
-            // Build questions HTML
             let html = '';
-            categoryQuestions.forEach((q, index) => {
+            categoryQuestions.forEach((q, i) => {
                 html += `
-                    <div class="question-card border border-cta-border p-6" data-index="${index}">
-                        <div class="flex items-start gap-4 mb-4">
-                            <span class="text-cta-orange font-archivo text-2xl animate-counter" style="animation-delay: ${index * 0.1 + 0.5}s">${String(index + 1).padStart(2, '0')}</span>
-                            <h3 class="text-xl font-medium">${q.question}</h3>
+                    <div class="border-brutal p-8 animate-reveal delay-${i + 1}">
+                        <div class="flex items-start gap-6 mb-6">
+                            <span class="font-archivo text-4xl text-cta-orange">${String(i + 1).padStart(2, '0')}</span>
+                            <h3 class="text-xl font-medium pt-2">${q.question}</h3>
                         </div>
-                        <div class="ml-12">
-                            ${renderInput(q)}
-                        </div>
+                        <div class="ml-16">${renderInput(q)}</div>
                     </div>
                 `;
             });
             
             container.innerHTML = html;
-            
-            // Trigger staggered entrance
-            setTimeout(() => {
-                document.querySelectorAll('.question-card').forEach((card, i) => {
-                    setTimeout(() => {
-                        card.classList.add('visible');
-                    }, i * 100);
-                });
-            }, 200);
-            
-            // Reset answers for this category
             answers = {};
             updateStep2Button();
         }
         
         function renderInput(q) {
             if (q.type === 'number') {
-                return `
-                    <input type="number" 
-                           id="${q.id}" 
-                           placeholder="${q.placeholder || ''}"
-                           onchange="updateAnswer('${q.id}', this.value)">
-                `;
+                return `<input type="number" id="${q.id}" placeholder="${q.placeholder}" onchange="updateAnswer('${q.id}', this.value)">`;
             } else if (q.type === 'single') {
-                return `
-                    <div class="grid md:grid-cols-2 gap-3">
-                        ${q.options.map(opt => `
-                            <button class="option-btn border border-cta-border p-4 text-left text-sm"
-                                    onclick="selectOption('${q.id}', '${opt}', this)">
-                                ${opt}
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
-            } else if (q.type === 'multi') {
-                return `
-                    <div class="grid md:grid-cols-2 gap-3">
-                        ${q.options.map(opt => `
-                            <button class="multi-option border border-cta-border p-4 text-left text-sm"
-                                    onclick="toggleMultiOption('${q.id}', '${opt}', this)">
-                                ${opt}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <p class="text-gray-500 text-sm mt-2">Puedes seleccionar multiples opciones</p>
-                `;
-            }
-        }
-        
-        function updateAnswer(id, value) {
-            answers[id] = value;
-            updateStep2Button();
-        }
-        
-        function selectOption(id, value, element) {
-            // Remove selection from siblings
-            element.parentElement.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            
-            // Select this one
-            element.classList.add('selected');
-            answers[id] = value;
-            updateStep2Button();
-        }
-        
-        function toggleMultiOption(id, value, element) {
-            element.classList.toggle('selected');
-            
-            // Update answers array
-            if (!answers[id]) answers[id] = [];
-            
-            if (element.classList.contains('selected')) {
-                answers[id].push(value);
+                return `<div class="grid md:grid-cols-2 gap-4">${q.options.map(opt => `
+                    <button class="option-brutal" onclick="selectOption('${q.id}', '${opt}', this)">${opt}</button>
+                `).join('')}</div>`;
             } else {
-                answers[id] = answers[id].filter(v => v !== value);
+                return `<div class="grid md:grid-cols-2 gap-4">${q.options.map(opt => `
+                    <button class="option-brutal" onclick="toggleMulti('${q.id}', '${opt}', this)">${opt}</button>
+                `).join('')}</div><p class="text-white/30 text-sm mt-4">Select multiple options</p>`;
             }
-            
+        }
+        
+        function updateAnswer(id, val) { answers[id] = val; updateStep2Button(); }
+        
+        function selectOption(id, val, el) {
+            el.parentElement.querySelectorAll('.option-brutal').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            answers[id] = val;
+            updateStep2Button();
+        }
+        
+        function toggleMulti(id, val, el) {
+            el.classList.toggle('selected');
+            if (!answers[id]) answers[id] = [];
+            if (el.classList.contains('selected')) { answers[id].push(val); }
+            else { answers[id] = answers[id].filter(v => v !== val); }
             updateStep2Button();
         }
         
         function updateStep2Button() {
-            const categoryQuestions = questions[selectedCategory];
-            const requiredCount = categoryQuestions.length;
-            const answeredCount = Object.keys(answers).filter(key => {
-                const val = answers[key];
-                return val && (Array.isArray(val) ? val.length > 0 : true);
-            }).length;
-            
-            const btn = document.getElementById('btnStep2');
-            const wasDisabled = btn.disabled;
-            btn.disabled = answeredCount < requiredCount;
-            
-            // Animate when enabled
-            if (wasDisabled && !btn.disabled) {
-                btn.classList.add('animate-scale-pop');
-                setTimeout(() => btn.classList.remove('animate-scale-pop'), 500);
-            }
+            const req = questions[selectedCategory].length;
+            const ans = Object.keys(answers).filter(k => answers[k] && (Array.isArray(answers[k]) ? answers[k].length > 0 : true)).length;
+            document.getElementById('btnStep2').disabled = ans < req;
         }
         
         function generateResults() {
             const container = document.getElementById('resultsContainer');
+            const data = {
+                empresarial: { title: 'EMPRESARIAL', mechanics: getMechanics('empresarial') },
+                ventas: { title: 'VENTAS', mechanics: getMechanics('ventas') },
+                equipos: { title: 'EQUIPOS', mechanics: getMechanics('equipos') }
+            }[selectedCategory];
             
-            // Get category-specific data
-            const categoryData = {
-                empresarial: {
-                    title: 'Gamificacion Empresarial',
-                    icon: '01',
-                    mechanics: getMechanicsForEmpresarial()
-                },
-                ventas: {
-                    title: 'Gamificacion de Ventas',
-                    icon: '02',
-                    mechanics: getMechanicsForVentas()
-                },
-                equipos: {
-                    title: 'Gamificacion de Equipos',
-                    icon: '03',
-                    mechanics: getMechanicsForEquipos()
-                }
-            };
-            
-            const data = categoryData[selectedCategory];
-            
-            // Build results HTML
             container.innerHTML = `
-                <!-- Summary -->
-                <div class="result-card border border-cta-border p-8" data-index="0">
-                    <div class="flex items-center gap-4 mb-6">
-                        <span class="text-cta-orange font-archivo text-4xl">${data.icon}</span>
-                        <h2 class="font-archivo text-2xl">${data.title.toUpperCase()}</h2>
-                    </div>
+                <div class="result-brutal" data-section="SUMMARY">
                     <div class="grid md:grid-cols-3 gap-6">
-                        <div class="border border-cta-border p-4">
-                            <div class="text-gray-400 text-sm mb-1">Participantes</div>
-                            <div class="text-2xl font-bold">${getParticipants()}</div>
+                        <div class="border-l-4 border-cta-orange pl-6">
+                            <div class="text-white/30 text-sm mb-2">PARTICIPANTS</div>
+                            <div class="font-archivo text-4xl">${getParticipants()}</div>
                         </div>
-                        <div class="border border-cta-border p-4">
-                            <div class="text-gray-400 text-sm mb-1">Duracion Sugerida</div>
-                            <div class="text-2xl font-bold">${getDuration()}</div>
+                        <div class="border-l-4 border-cta-orange pl-6">
+                            <div class="text-white/30 text-sm mb-2">DURATION</div>
+                            <div class="font-archivo text-4xl">${getDuration()}</div>
                         </div>
-                        <div class="border border-cta-border p-4">
-                            <div class="text-gray-400 text-sm mb-1">Complejidad</div>
-                            <div class="text-2xl font-bold text-cta-orange">${getComplexity()}</div>
+                        <div class="border-l-4 border-cta-orange pl-6">
+                            <div class="text-white/30 text-sm mb-2">COMPLEXITY</div>
+                            <div class="font-archivo text-4xl text-cta-orange">${getComplexity()}</div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Diagnostico -->
-                <div class="result-card border border-cta-border p-8" data-index="1">
-                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">DIAGNOSTICO</h3>
-                    <div class="space-y-4">
-                        ${getDiagnosticItems()}
-                    </div>
-                </div>
-                
-                <!-- Mecanicas -->
-                <div class="result-card border border-cta-border p-8" data-index="2">
-                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">MECANICAS RECOMENDADAS</h3>
+                <div class="result-brutal" data-section="MECHANICS">
+                    <h3 class="font-archivo text-xl mb-6">RECOMMENDED MECHANICS</h3>
                     <div class="grid md:grid-cols-2 gap-4">
                         ${data.mechanics.map(m => `
-                            <div class="border border-cta-border p-4 transition-all duration-300 hover:border-cta-orange hover:bg-cta-orange/5">
+                            <div class="border-2 border-white/10 p-4 hover:border-cta-orange transition-colors">
                                 <div class="font-bold mb-2">${m.name}</div>
-                                <div class="text-gray-400 text-sm">${m.description}</div>
+                                <div class="text-white/40 text-sm">${m.desc}</div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
                 
-                <!-- Sistema de Puntos -->
-                <div class="result-card border border-cta-border p-8" data-index="3">
-                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">SISTEMA DE PUNTOS SUGERIDO</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="border-b border-cta-border">
-                                <tr>
-                                    <th class="pb-3 font-medium">Accion</th>
-                                    <th class="pb-3 font-medium text-right">Puntos</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-300">
-                                ${getPointsTable()}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="result-brutal" data-section="POINTS SYSTEM">
+                    <h3 class="font-archivo text-xl mb-6">POINTS SYSTEM</h3>
+                    <table class="table-brutal">
+                        <thead><tr><th>ACTION</th><th class="text-right">POINTS</th></tr></thead>
+                        <tbody>${getPointsTable()}</tbody>
+                    </table>
                 </div>
                 
-                <!-- Recompensas -->
-                <div class="result-card border border-cta-border p-8" data-index="4">
-                    <h3 class="font-archivo text-xl mb-6 text-cta-orange">RECOMPENSAS SUGERIDAS</h3>
-                    <div class="space-y-3">
-                        ${getRewards()}
-                    </div>
+                <div class="result-brutal" data-section="REWARDS">
+                    <h3 class="font-archivo text-xl mb-6">SUGGESTED REWARDS</h3>
+                    <div class="space-y-3">${getRewards()}</div>
                 </div>
                 
-                <!-- CTA -->
-                <div class="result-card border-2 border-cta-orange p-8 text-center" data-index="5">
-                    <h3 class="font-archivo text-2xl mb-4">LISTO PARA IMPLEMENTAR?</h3>
-                    <p class="text-gray-400 mb-6">Agenda una sesion con nuestro equipo para llevar este plan a la realidad.</p>
-                    <a href="https://calltoactionplus.com" target="_blank" class="btn-cta inline-block">
-                        <span>CONTACTAR A CTA+</span>
+                <div class="border-brutal-orange p-12 text-center">
+                    <h3 class="font-archivo text-3xl mb-4">READY TO IMPLEMENT?</h3>
+                    <p class="text-white/40 mb-8">Schedule a session with our team to bring this plan to reality.</p>
+                    <a href="https://calltoactionplus.com" target="_blank" class="btn-brutal inline-block">
+                        CONTACT CTA+
                     </a>
                 </div>
             `;
             
-            // Trigger staggered entrance
             setTimeout(() => {
-                document.querySelectorAll('.result-card').forEach((card, i) => {
-                    setTimeout(() => {
-                        card.classList.add('visible');
-                    }, i * 150);
+                document.querySelectorAll('.result-brutal').forEach((el, i) => {
+                    setTimeout(() => el.classList.add('visible'), i * 150);
                 });
-                
-                // Animate table rows
-                setTimeout(() => {
-                    document.querySelectorAll('.table-row').forEach((row, i) => {
-                        setTimeout(() => {
-                            row.classList.add('visible');
-                        }, i * 50);
-                    });
-                }, 600);
-            }, 200);
+            }, 300);
         }
         
-        // Helper functions for results
         function getParticipants() {
-            const keys = ['E1', 'V1', 'Q1'];
-            for (const key of keys) {
-                if (answers[key]) return answers[key];
-            }
-            return 'N/A';
+            return answers['E1'] || answers['V1'] || answers['Q1'] || 'N/A';
         }
         
         function getDuration() {
-            if (answers['E5']) return answers['E5'];
-            if (answers['Q5']) return answers['Q5'];
-            if (answers['Q2']) {
-                if (answers['Q2'].includes('unico')) return '1 dia';
-                return 'Continuo';
-            }
-            return '3 meses';
+            return answers['E5'] || answers['Q5'] || '3M';
         }
         
         function getComplexity() {
-            const participants = parseInt(getParticipants()) || 0;
-            if (participants < 20) return 'Baja';
-            if (participants < 50) return 'Media';
-            return 'Alta';
+            const p = parseInt(getParticipants()) || 0;
+            return p < 20 ? 'LOW' : p < 50 ? 'MED' : 'HIGH';
         }
         
-        function getDiagnosticItems() {
-            let items = [];
-            
-            if (answers['E2']) items.push(`Problema principal: ${answers['E2']}`);
-            if (answers['E3']) items.push(`Comportamientos a incentivar: ${answers['E3'].join(', ')}`);
-            if (answers['V3']) items.push(`Cumplimiento actual de meta: ${answers['V3']}`);
-            if (answers['V5']) items.push(`Metrica objetivo: ${answers['V5']}`);
-            if (answers['Q4']) items.push(`Objetivo principal: ${answers['Q4']}`);
-            if (answers['Q3']) items.push(`Modalidad: ${answers['Q3']}`);
-            
-            return items.map(item => `
-                <div class="flex items-center gap-3">
-                    <span class="text-cta-orange">+</span>
-                    <span>${item}</span>
-                </div>
-            `).join('');
-        }
-        
-        function getMechanicsForEmpresarial() {
-            let mechanics = [
-                { name: 'Sistema de Puntos', description: 'Acumulacion por acciones positivas diarias' },
-                { name: 'Niveles de Empleado', description: 'Progresion visible con beneficios por nivel' }
-            ];
-            
-            if (answers['E2']?.includes('Rotacion')) {
-                mechanics.push({ name: 'Programa de Retencion', description: 'Bonos por antiguedad y streaks mensuales' });
-            }
-            if (answers['E3']?.includes('Colaboracion')) {
-                mechanics.push({ name: 'Misiones en Equipo', description: 'Retos grupales con recompensas compartidas' });
-            }
-            
-            mechanics.push({ name: 'Reconocimiento Publico', description: 'Destacar logros en canales internos' });
-            
-            return mechanics;
-        }
-        
-        function getMechanicsForVentas() {
-            let mechanics = [
-                { name: 'Leaderboard en Tiempo Real', description: 'Ranking visible de vendedores actualizado diario' },
-                { name: 'Badges de Logro', description: 'Insignias por metas alcanzadas' }
-            ];
-            
-            if (answers['V6']?.includes('individual')) {
-                mechanics.push({ name: 'Competencias Semanales', description: 'Torneos cortos con premios rapidos' });
-            } else {
-                mechanics.push({ name: 'Metas de Equipo', description: 'Objetivos grupales con bonificacion compartida' });
-            }
-            
-            mechanics.push({ name: 'Multiplicadores', description: 'Bonus de puntos por rachas de ventas consecutivas' });
-            mechanics.push({ name: 'Power-ups', description: 'Ventajas temporales canjeables por puntos' });
-            
-            return mechanics;
-        }
-        
-        function getMechanicsForEquipos() {
-            let mechanics = [
-                { name: 'Narrativa Tematica', description: 'Historia envolvente que contextualiza las actividades' },
-                { name: 'Retos Colaborativos', description: 'Desafios que requieren trabajo en equipo' }
-            ];
-            
-            if (answers['Q4']?.includes('conflictos')) {
-                mechanics.push({ name: 'Dinamicas de Confianza', description: 'Ejercicios para construir vinculos' });
-            }
-            if (answers['Q4']?.includes('Integrar')) {
-                mechanics.push({ name: 'Icebreakers Gamificados', description: 'Juegos de presentacion con puntos' });
-            }
-            
-            mechanics.push({ name: 'Competencia por Equipos', description: 'Division en grupos con tabla de posiciones' });
-            mechanics.push({ name: 'Recompensas Experienciales', description: 'Premios basados en experiencias compartidas' });
-            
-            return mechanics;
+        function getMechanics(cat) {
+            const base = {
+                empresarial: [
+                    { name: 'Points System', desc: 'Daily accumulation for positive actions' },
+                    { name: 'Employee Levels', desc: 'Visible progression with level benefits' },
+                    { name: 'Public Recognition', desc: 'Highlight achievements in internal channels' }
+                ],
+                ventas: [
+                    { name: 'Real-time Leaderboard', desc: 'Daily updated seller ranking' },
+                    { name: 'Achievement Badges', desc: 'Insignias for reached goals' },
+                    { name: 'Multipliers', desc: 'Point bonus for consecutive sales' }
+                ],
+                equipos: [
+                    { name: 'Thematic Narrative', desc: 'Engaging story for activities' },
+                    { name: 'Collaborative Challenges', desc: 'Team-required missions' },
+                    { name: 'Team Competition', desc: 'Group division with standings' }
+                ]
+            };
+            return base[cat];
         }
         
         function getPointsTable() {
             const tables = {
-                empresarial: [
-                    ['Llegar puntual', '10'],
-                    ['Completar tarea del dia', '25'],
-                    ['Ayudar a un companero', '15'],
-                    ['Proponer mejora implementada', '100'],
-                    ['Completar capacitacion', '50'],
-                    ['Cumplir meta semanal', '200']
-                ],
-                ventas: [
-                    ['Llamada realizada', '5'],
-                    ['Reunion agendada', '20'],
-                    ['Propuesta enviada', '30'],
-                    ['Venta cerrada', '100'],
-                    ['Upsell logrado', '50'],
-                    ['Referido que compra', '75']
-                ],
-                equipos: [
-                    ['Participar en dinamica', '10'],
-                    ['Completar reto grupal', '50'],
-                    ['Ayudar a otro equipo', '25'],
-                    ['Ganar competencia', '100'],
-                    ['Mejor actitud (votacion)', '75']
-                ]
+                empresarial: [['On time arrival', 10], ['Complete daily task', 25], ['Help colleague', 15], ['Propose improvement', 100]],
+                ventas: [['Call made', 5], ['Meeting scheduled', 20], ['Proposal sent', 30], ['Sale closed', 100]],
+                equipos: [['Participate in activity', 10], ['Complete group challenge', 50], ['Win competition', 100]]
             };
-            
-            const rows = tables[selectedCategory] || tables.empresarial;
-            return rows.map(([action, points], i) => `
-                <tr class="table-row border-b border-cta-border" data-index="${i}">
-                    <td class="py-3">${action}</td>
-                    <td class="py-3 text-right text-cta-orange font-bold">+${points}</td>
-                </tr>
-            `).join('');
+            return (tables[selectedCategory] || tables.empresarial).map(([a, p]) => 
+                `<tr><td>${a}</td><td class="text-right"><span class="points-value">+${p}</span></td></tr>`
+            ).join('');
         }
         
         function getRewards() {
-            const budget = answers['E4'] || 'Sin presupuesto definido';
-            
-            let rewards = [];
-            
-            if (budget.includes('Sin presupuesto')) {
-                rewards = [
-                    'Reconocimiento publico en reunion general',
-                    'Dia libre adicional',
-                    'Horario flexible por una semana',
-                    'Lugar de estacionamiento preferencial',
-                    'Almuerzo con el CEO/Director'
-                ];
-            } else if (budget.includes('500.000')) {
-                rewards = [
-                    'Bonos de regalo ($50.000 - $100.000)',
-                    'Cena para dos personas',
-                    'Suscripcion a streaming (1 mes)',
-                    'Kit de marca personalizado',
-                    'Dia libre adicional'
-                ];
-            } else {
-                rewards = [
-                    'Bonos monetarios significativos',
-                    'Viaje de fin de semana',
-                    'Tecnologia (audifonos, gadgets)',
-                    'Experiencias premium (spa, aventura)',
-                    'Cursos o certificaciones pagadas'
-                ];
-            }
-            
+            const rewards = ['Public recognition', 'Extra day off', 'Flexible schedule', 'Lunch with CEO', 'Gift vouchers'];
             return rewards.map(r => `
-                <div class="flex items-center gap-3 border border-cta-border p-3 transition-all duration-300 hover:border-cta-orange hover:translate-x-2">
-                    <span class="text-cta-orange">+</span>
+                <div class="flex items-center gap-4 border-2 border-white/10 p-4 hover:border-cta-orange hover:translate-x-2 transition-all">
+                    <span class="text-cta-orange font-archivo">+</span>
                     <span>${r}</span>
                 </div>
             `).join('');
         }
         
         function downloadPlan() {
-            alert('Funcion de descarga PDF en desarrollo. Contacta a CTA+ para obtener tu plan completo.');
+            alert('PDF download coming soon. Contact CTA+ for your complete plan.');
         }
     </script>
 </body>
